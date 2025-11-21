@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Brain, Zap, Cpu, ArrowRight } from 'lucide-react';
 import useScrollReveal from '../hooks/useScrollReveal';
 import videoFile from "../assets/Logo_Animate_V1.mp4";
+import { useNavigate } from "react-router-dom";
 
 const Hero: React.FC = () => {
   useScrollReveal();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -65,7 +67,9 @@ const Hero: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button className="group bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 
+              <button 
+              onClick={() => navigate("/solutions")}
+              className="group bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 
                 text-white px-8 py-4 rounded-2xl font-semibold text-lg 
                 hover:from-cyan-600 hover:via-blue-700 hover:to-purple-700 
                 transform hover:scale-105 transition-all duration-300 shadow-xl">
