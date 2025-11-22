@@ -3,13 +3,13 @@ import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import aiAgentImage from "../assets/products/AI_agent-min.png";
-import aiSalesLeadImage from "../assets/products/AI_Sales_Lead_Generator-min.png";
-import aiVirtualImage from "../assets/products/AI_Virtual_Assistant-min.png";
-import contentCreatorImage from "../assets/products/Content_Creator_AI-min.png";
-import customizedDroneImage from "../assets/products/Customized_Drones-min.png";
-import faceRecoImage from "../assets/products/Face_Recognition-min.png";
-import interactiveWebsiteImage from "../assets/products/Interactive_Websites-min.png";
+import aiAgentImage from "../assets/products/AI_agent-min (1).png";
+import aiSalesLeadImage from "../assets/products/AI_Sales_Lead_Generator-min (1).png";
+import aiVirtualImage from "../assets/products/AI_Virtual_Assistant-min (1).png";
+import contentCreatorImage from "../assets/products/Content_Creator_AI-min (1).png";
+import customizedDroneImage from "../assets/products/Customized_Drones-min (1).png";
+import faceRecoImage from "../assets/products/Face_Recognition-min (1).png";
+import interactiveWebsiteImage from "../assets/products/Interactive_Websites-min (1).png";
 
 interface Product {
   id: number;
@@ -163,7 +163,7 @@ const Products: React.FC = () => {
                 className="
                   group relative bg-white/10 backdrop-blur-md 
                   rounded-3xl p-6 
-                  h-[380px]
+                  h-[410px]
                   hover:bg-white/20 transition-all duration-500 
                   transform hover:-translate-y-4 hover:scale-105 
                   cursor-pointer 
@@ -175,7 +175,7 @@ const Products: React.FC = () => {
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="w-40 h-40 object-contain"
+                    className="w-45 h-45 object-contain"
                   />
                 </div>
 
