@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Article {
   date: string;
@@ -308,19 +309,10 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
   console.log('Articles data:', articles);
   return (
     <section id="blog" className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 opacity-5">
-        <img
-          src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=1536&h=768&fit=crop"
-          alt="Futuristic AI interface"
-          className="w-full h-full object-cover"
-        />
-      </div>
-
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6 tracking-wide">
-            Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500">Blog Updates</span>
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+            Latest <span className="text-blue-400">Blog Updates</span>
           </h2>
         </div>
         {articles.length === 0 && !loading && !error && (
@@ -334,10 +326,10 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
           <button
             onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
             disabled={currentPage === 0}
-            className="absolute left-0 z-10 bg-white/10 backdrop-blur-md rounded-full p-3 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-white/10 text-white p-3 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Previous page"
           >
-            <span className="text-white text-2xl">←</span>
+            <ChevronLeft className="w-6 h-6" />
           </button>
 
           {/* Sliding Container */}
@@ -398,11 +390,24 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
           <button
             onClick={() => setCurrentPage(prev => Math.min(Math.ceil(articles.length / articlesPerPage) - 1, prev + 1))}
             disabled={currentPage === Math.ceil(articles.length / articlesPerPage) - 1}
-            className="absolute right-0 z-10 bg-white/10 backdrop-blur-md rounded-full p-3 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-white/10 backdrop-blur-md rounded-full p-3 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Next page"
           >
-            <span className="text-white text-2xl">→</span>
+            <ChevronRight className="w-6 h-6 text-white" />
           </button>
+        </div>
+
+        {/* Pagination Dots */}
+        <div className="flex justify-center mt-8 space-x-2">
+          {Array.from({ length: Math.ceil(articles.length / articlesPerPage) }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                currentPage === index ? "bg-blue-400 scale-125" : "bg-white/30"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>
