@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, X, Volume2 } from 'lucide-react';
+import axios from 'axios';
 
 interface VoiceAssistantProps {
   onClose: () => void;
@@ -10,68 +11,140 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
   const [transcript, setTranscript] = useState('');
   const [response, setResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
-  // Mock speech recognition functionality
-  const startListening = () => {
-    setIsListening(true);
-    setTranscript('');
-    setResponse('');
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = 
+      (window as any).SpeechRecognition || 
+      (window as any).webkitSpeechRecognition;
     
-    // Simulate speech recognition
-    setTimeout(() => {
-      setTranscript("Hello, I'd like to know more about your AI solutions...");
+    if (!SpeechRecognition) {
+      console.error('Speech recognition not supported');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = async (event: any) => {
+      const speechText = event.results[0][0].transcript;
+      console.log('You said:', speechText);
+      setTranscript(speechText);
       setIsListening(false);
-      setIsProcessing(true);
       
-      setTimeout(() => {
-        setResponse("Great! I'd be happy to help you learn about our AI solutions. We offer AI Agents, Face Recognition Systems, Customized Drones, and more. Which area interests you most?");
-        setIsProcessing(false);
-      }, 2000);
-    }, 3000);
-  };
+      await handleQuery(speechText);
+    };
 
-  const stopListening = () => {
-    setIsListening(false);
-  };
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
 
-  const simulateResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    // Cleanup on unmount
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // Send query to Python backend
+  const handleQuery = async (query: string) => {
+    setIsProcessing(true);
     
-    if (lowerInput.includes('product') || lowerInput.includes('service')) {
-      return "We offer five main products: AI Agents for task automation, Face Recognition Systems for security, Customized Drones for various applications, AI Virtual Assistants for customer service, and Interactive Websites. Which one would you like to learn more about?";
-    } else if (lowerInput.includes('industry')) {
-      return "We serve multiple industries including Hotels, Restaurants, Supermarkets, Education, Real Estate, Finance, Healthcare, and more. Each solution is tailored to specific industry requirements.";
-    } else if (lowerInput.includes('contact')) {
-      return "You can reach us at bhatiagunjan27@gmail.com or call us at +91-7688929473. We're available to discuss your AI needs anytime.";
-    } else if (lowerInput.includes('demo')) {
-      return "I'd love to arrange a demo for you! Please call us at +91-7688929473 or email bhatiagunjan27@gmail.com to schedule a personalized demonstration.";
-    } else {
-      return "Thank you for your question! For detailed information, I recommend speaking with our team directly. You can reach us at +91-7688929473 or bhatiagunjan27@gmail.com.";
+    try {
+      const { data } = await axios.post('http://localhost:8000/api/chat', {
+        query
+      });
+
+      console.log('Bot response:', data);
+      setResponse(data.answer);
+      
+      speakResponse(data.answer);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      setResponse('Sorry, I encountered an error. Please make sure the backend is running.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  // Mock text-to-speech
+  const startListening = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition not supported in this browser. Please use Chrome.');
+      return;
+    }
+    
+    setTranscript('');
+    setResponse('');
+    
+    // Stop any ongoing speech before starting to listen
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    
+    recognitionRef.current.start();
+    setIsListening(true);
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsListening(false);
+  };
+
   const speakResponse = (text: string) => {
     if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.8;
+      utterance.rate = 0.9;
       utterance.pitch = 1;
+      utterance.lang = 'en-US';
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  useEffect(() => {
-    if (response) {
-      speakResponse(response);
+  const handleQuickAction = async (query: string) => {
+    setTranscript(query);
+    await handleQuery(query);
+  };
+
+  // Handle close with cleanup
+  const handleClose = () => {
+    // Stop speech synthesis
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
-  }, [response]);
+    
+    // Stop recognition if listening
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+    }
+    
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
       <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl relative">
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
           aria-label="Close voice assistant"
         >
@@ -87,14 +160,14 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
         {/* Microphone Visualization */}
         <div className="flex justify-center mb-8">
           <div className="relative">
-            {/* Main Microphone Button */}
             <button
               onClick={isListening ? stopListening : startListening}
+              disabled={isProcessing}
               className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${
                 isListening
                   ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse shadow-2xl'
                   : isProcessing
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
+                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-xl'
               }`}
             >
@@ -105,7 +178,6 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
               )}
             </button>
 
-            {/* Pulse Rings */}
             {isListening && (
               <>
                 <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-20" />
@@ -114,7 +186,6 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
               </>
             )}
 
-            {/* Processing Indicator */}
             {isProcessing && (
               <div className="absolute -inset-4 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
             )}
@@ -169,29 +240,23 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
         {/* Quick Actions */}
         <div className="mt-6 flex justify-center space-x-4">
           <button
-            onClick={() => {
-              setTranscript("Tell me about your products");
-              setResponse(simulateResponse("Tell me about your products"));
-            }}
-            className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors duration-200"
+            onClick={() => handleQuickAction("Tell me about your products")}
+            disabled={isProcessing}
+            className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors duration-200 disabled:opacity-50"
           >
             Products
           </button>
           <button
-            onClick={() => {
-              setTranscript("What industries do you serve?");
-              setResponse(simulateResponse("What industries do you serve?"));
-            }}
-            className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm hover:bg-purple-200 transition-colors duration-200"
+            onClick={() => handleQuickAction("What industries do you serve?")}
+            disabled={isProcessing}
+            className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm hover:bg-purple-200 transition-colors duration-200 disabled:opacity-50"
           >
             Industries
           </button>
           <button
-            onClick={() => {
-              setTranscript("How can I contact you?");
-              setResponse(simulateResponse("How can I contact you?"));
-            }}
-            className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm hover:bg-green-200 transition-colors duration-200"
+            onClick={() => handleQuickAction("How can I contact you?")}
+            disabled={isProcessing}
+            className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm hover:bg-green-200 transition-colors duration-200 disabled:opacity-50"
           >
             Contact
           </button>
