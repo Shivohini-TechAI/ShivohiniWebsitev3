@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MessageCircle, X, Send, Volume2 } from 'lucide-react';
 import assistantImage from '../assets/industry/assistant.png';
+import VoiceAssistant from './VoiceAssistant';
 
 const AssistantWidget: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isVoicePanelOpen, setIsVoicePanelOpen] = useState(false);
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
     { text: "Hello! I'm your assistant. How can I help you today?", isBot: true }
@@ -22,7 +24,7 @@ const AssistantWidget: React.FC = () => {
   };
 
   const handleVoiceClick = () => {
-    setIsVoicePanelOpen(true);
+    setIsVoiceAssistantOpen(true);
     setIsChatbotOpen(false);
     setIsMenuOpen(false);
     console.log('Voice Assistant opened');
@@ -81,6 +83,10 @@ const AssistantWidget: React.FC = () => {
 
   return (
     <div ref={widgetRef} className="fixed bottom-6 right-6 z-50">
+
+       {isVoiceAssistantOpen && (
+        <VoiceAssistant onClose={() => setIsVoiceAssistantOpen(false)} />
+      )}
 
       {/* Voice Assistant Panel */}
       {isVoicePanelOpen && (
