@@ -1,19 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MessageCircle, X, Send, Volume2 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import assistantImage from '../assets/industry/assistant.png';
 import VoiceAssistant from './VoiceAssistant';
+import UserDetailsForm, { UserDetails } from './UserDetailsForm'; // NEW
 
 const AssistantWidget: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isVoicePanelOpen, setIsVoicePanelOpen] = useState(false);
   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false); // NEW
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null); // NEW
+  const [pendingAction, setPendingAction] = useState<'voice' | 'chatbot' | 'whatsapp' | null>(null); // NEW
+  
   const [chatMessages, setChatMessages] = useState([
     { text: "Hello! I'm your assistant. How can I help you today?", isBot: true }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
+
+  // NEW: Check if user has already submitted details
+  useEffect(() => {
+    const savedDetails = localStorage.getItem('userDetails');
+    const hasSubmitted = localStorage.getItem('userDetailsSubmitted');
+    
+    if (savedDetails && hasSubmitted === 'true') {
+      setUserDetails(JSON.parse(savedDetails));
+    }
+  }, []);
 
   const handleMainButtonClick = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -23,18 +39,66 @@ const AssistantWidget: React.FC = () => {
     }
   };
 
-  const handleVoiceClick = () => {
-    setIsVoiceAssistantOpen(true);
-    setIsChatbotOpen(false);
+  // NEW: Check if user details exist before opening features
+  const checkUserDetailsAndProceed = (action: 'voice' | 'chatbot' | 'whatsapp') => {
+    if (userDetails) {
+      // User details already exist, proceed
+      proceedWithAction(action);
+    } else {
+      // Show form first
+      setPendingAction(action);
+      setShowUserForm(true);
+      setIsMenuOpen(false);
+    }
+  };
+
+  // NEW: Handle form submission
+  const handleUserDetailsSubmit = (details: UserDetails) => {
+    setUserDetails(details);
+    setShowUserForm(false);
+    
+    // Proceed with the pending action
+    if (pendingAction) {
+      proceedWithAction(pendingAction);
+      setPendingAction(null);
+    }
+  };
+
+  // NEW: Proceed with the selected action
+  const proceedWithAction = (action: 'voice' | 'chatbot' | 'whatsapp') => {
+    switch (action) {
+      case 'voice':
+        setIsVoiceAssistantOpen(true);
+        setIsChatbotOpen(false);
+        break;
+      case 'chatbot':
+        setIsChatbotOpen(true);
+        setIsVoicePanelOpen(false);
+        break;
+      case 'whatsapp':
+        handleWhatsAppClick();
+        break;
+    }
     setIsMenuOpen(false);
-    console.log('Voice Assistant opened');
+  };
+
+  const handleVoiceClick = () => {
+    checkUserDetailsAndProceed('voice');
   };
 
   const handleChatbotClick = () => {
-    setIsChatbotOpen(true);
-    setIsVoicePanelOpen(false);
-    setIsMenuOpen(false);
-    console.log('Chatbot opened');
+    checkUserDetailsAndProceed('chatbot');
+  };
+
+  const handleWhatsAppClick = () => {
+    if (userDetails) {
+      const phoneNumber = '919876543210'; // Replace with your WhatsApp number
+      const message = `Hello! I'm ${userDetails.name} from ${userDetails.company || 'my company'}. I need assistance.`;
+      window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+      setIsMenuOpen(false);
+    } else {
+      checkUserDetailsAndProceed('whatsapp');
+    }
   };
 
   const handleMicClick = () => {
@@ -82,154 +146,192 @@ const AssistantWidget: React.FC = () => {
   }, [isMenuOpen, isVoicePanelOpen, isChatbotOpen]);
 
   return (
-    <div ref={widgetRef} className="fixed bottom-6 right-6 z-50">
-
-       {isVoiceAssistantOpen && (
-        <VoiceAssistant onClose={() => setIsVoiceAssistantOpen(false)} />
+    <>
+      {/* NEW: User Details Form Modal */}
+      {showUserForm && (
+        <UserDetailsForm 
+          onSubmit={handleUserDetailsSubmit}
+          onClose={() => {
+            setShowUserForm(false);
+            setPendingAction(null);
+          }}
+        />
       )}
 
-      {/* Voice Assistant Panel */}
-      {isVoicePanelOpen && (
-        <div className="absolute bottom-24 right-0 w-80 bg-white rounded-2xl shadow-2xl p-6 mb-2 animate-fade-in-up border border-gray-200">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-gray-900">Voice Assistant</h3>
-            <button
-              onClick={() => setIsVoicePanelOpen(false)}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
-
-          <div className="flex flex-col items-center space-y-4">
-            <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 text-center">
-              <p className="text-gray-700 mb-4">
-                {isListening ? 'Listening...' : 'Click the microphone to start'}
-              </p>
-
-              <button
-                onClick={handleMicClick}
-                className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-all duration-300 transform hover:scale-105 ${
-                  isListening
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
-                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-                }`}
-              >
-                {isListening ? (
-                  <Volume2 className="w-8 h-8 text-white" />
-                ) : (
-                  <Mic className="w-8 h-8 text-white" />
-                )}
-              </button>
-            </div>
-
-            <div className="w-full text-sm text-gray-500 text-center">
-              Voice recognition will be implemented here
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Chatbot Panel */}
+      {/* Background overlay with half opacity when chatbot is open */}
       {isChatbotOpen && (
-        <div className="absolute bottom-24 right-0 w-96 h-[500px] bg-white rounded-2xl shadow-2xl mb-2 animate-fade-in-up border border-gray-200 flex flex-col">
-          <div className="flex justify-between items-center p-4 border-b border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900">Assistant Chatbot</h3>
-            <button
-              onClick={() => setIsChatbotOpen(false)}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+          onClick={() => setIsChatbotOpen(false)}
+        />
+      )}
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {chatMessages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}
-              >
-                <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-2 ${
-                    msg.isBot
-                      ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-gray-900'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type a message..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      <div ref={widgetRef} className="fixed bottom-6 right-6 z-50">
+        {/* Voice Assistant with limited size */}
+        {isVoiceAssistantOpen && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="max-w-2xl max-h-[600px] w-full">
+              <VoiceAssistant 
+                onClose={() => setIsVoiceAssistantOpen(false)}
+                userDetails={userDetails} // Pass user details
               />
-              <button
-                onClick={handleSendMessage}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
-              >
-                <Send className="w-5 h-5" />
-              </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Option Buttons */}
-      {isMenuOpen && !isVoicePanelOpen && !isChatbotOpen && (
-        <div className="absolute bottom-24 right-0 flex flex-col space-y-3 mb-2 animate-fade-in-up">
-          <button
-            onClick={handleVoiceClick}
-            className="group flex items-center space-x-3 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 text-gray-900 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
-          >
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Mic className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-semibold">Voice Assistant</span>
-          </button>
-
-          <button
-            onClick={handleChatbotClick}
-            className="group flex items-center space-x-3 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 text-gray-900 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
-          >
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <MessageCircle className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-semibold">Chatbot</span>
-          </button>
-        </div>
-      )}
-
-      {/* Main Assistant Button */}
-      <button
-        onClick={handleMainButtonClick}
-        className={`relative w-24 h-24 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center bg-white border-2 border-gray-200 ${
-          isMenuOpen ? 'scale-110 rotate-90' : ''
-        }`}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full animate-pulse" />
-
-        {isMenuOpen ? (
-          <X className="w-10 h-10 text-gray-700 relative z-10" />
-        ) : (
-          <img
-            src={assistantImage}
-            alt="Assistant"
-            className="w-14 h-14 object-contain relative z-10"
-          />
         )}
 
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-green-500 rounded-full border-2 border-white animate-pulse" />
-      </button>
-    </div>
+        {/* Voice Assistant Panel */}
+        {isVoicePanelOpen && (
+          <div className="absolute bottom-24 right-0 w-80 bg-white rounded-2xl shadow-2xl p-6 mb-2 animate-fade-in-up border border-gray-200">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Voice Assistant</h3>
+              <button
+                onClick={() => setIsVoicePanelOpen(false)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 text-center">
+                <p className="text-gray-700 mb-4">
+                  {isListening ? 'Listening...' : 'Click the microphone to start'}
+                </p>
+
+                <button
+                  onClick={handleMicClick}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-all duration-300 transform hover:scale-105 ${
+                    isListening
+                      ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
+                  }`}
+                >
+                  {isListening ? (
+                    <Volume2 className="w-8 h-8 text-white" />
+                  ) : (
+                    <Mic className="w-8 h-8 text-white" />
+                  )}
+                </button>
+              </div>
+
+              <div className="w-full text-sm text-gray-500 text-center">
+                Voice recognition will be implemented here
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Chatbot Panel */}
+        {isChatbotOpen && (
+          <div className="absolute bottom-24 right-0 w-96 h-[500px] bg-white rounded-2xl shadow-2xl mb-2 animate-fade-in-up border border-gray-200 flex flex-col z-50">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900">Assistant Chatbot</h3>
+              <button
+                onClick={() => setIsChatbotOpen(false)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {chatMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}
+                >
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                      msg.isBot
+                        ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-gray-900'
+                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type a message..."
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Option Buttons */}
+        {isMenuOpen && !isVoicePanelOpen && !isChatbotOpen && (
+          <div className="absolute bottom-24 right-0 flex flex-col space-y-3 mb-2 animate-fade-in-up">
+            <button
+              onClick={handleVoiceClick}
+              className="group flex items-center space-x-3 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 text-gray-900 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
+            >
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Mic className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-semibold">Voice Assistant</span>
+            </button>
+
+            <button
+              onClick={handleChatbotClick}
+              className="group flex items-center space-x-3 bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 text-gray-900 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
+            >
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-semibold">Chatbot</span>
+            </button>
+
+            <button
+              onClick={() => checkUserDetailsAndProceed('whatsapp')}
+              className="group flex items-center space-x-3 bg-white hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 text-gray-900 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
+            >
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FaWhatsapp className="w-6 h-6 text-white" />
+              </div>
+              <span className="font-semibold">WhatsApp</span>
+            </button>
+          </div>
+        )}
+
+        {/* Main Assistant Button */}
+        <button
+          onClick={handleMainButtonClick}
+          className={`relative w-24 h-24 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center bg-white border-2 border-gray-200 ${
+            isMenuOpen ? 'scale-110 rotate-90' : ''
+          }`}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full animate-pulse" />
+
+          {isMenuOpen ? (
+            <X className="w-10 h-10 text-gray-700 relative z-10" />
+          ) : (
+            <img
+              src={assistantImage}
+              alt="Assistant"
+              className="w-14 h-14 object-contain relative z-10"
+            />
+          )}
+
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-green-500 rounded-full border-2 border-white animate-pulse" />
+        </button>
+      </div>
+    </>
   );
 };
 

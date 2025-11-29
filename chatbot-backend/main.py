@@ -5,6 +5,7 @@ from supabase import create_client
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from typing import Optional
 
 load_dotenv()
 
@@ -24,6 +25,33 @@ supabase = create_client(
 )
 
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+class UserDetails(BaseModel):
+    name: str
+    email: str
+    phone: str
+    company: Optional[str] = None
+
+@app.post("/api/save-user")
+async def save_user(user: UserDetails):
+    try:
+        # Save to Supabase (create a 'users' table first)
+        result = supabase.table('users').insert({
+            'name': user.name,
+            'email': user.email,
+            'phone': user.phone,
+            'company': user.company,
+            'created_at': 'now()'
+        }).execute()
+        
+        print(f"✅ User saved: {user.name}")
+        
+        return {"status": "success", "message": "User details saved"}
+        
+    except Exception as e:
+        print(f"❌ Error saving user: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 class ChatRequest(BaseModel):
     query: str
