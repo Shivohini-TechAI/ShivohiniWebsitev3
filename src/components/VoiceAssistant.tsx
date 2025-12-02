@@ -3,6 +3,7 @@ import { Mic, MicOff, X, Volume2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import robotGif from '../assets/Robot-Bot 3D.gif';
+import clearIcon from '../assets/reload.png';
 
 interface VoiceAssistantProps {
   onClose: () => void;
@@ -110,12 +111,7 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
   const detectNavigationIntent = (query: string): string | null => {
     const lowerQuery = query.toLowerCase();
 
-    // Home
-    if (/\b(home|main.*page|homepage|go.*home|take.*home)\b/i.test(lowerQuery)) {
-      return '/';
-    }
-
-    // SPECIFIC INDUSTRIES FIRST (before general keywords)
+    if (/\b(home|main.*page|homepage|go.*home|take.*home)\b/i.test(lowerQuery)) return '/';
     if (/\b(hotel|hostel)\b/i.test(lowerQuery)) return '/industries/hotel';
     if (/\b(restaurant|cafe|dining)\b/i.test(lowerQuery)) return '/industries/restaurant';
     if (/\b(supermarket|retail|grocery)\b/i.test(lowerQuery)) return '/industries/supermarket';
@@ -126,47 +122,20 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
     if (/\b(finance|banking)\b/i.test(lowerQuery)) return '/industries/finance';
     if (/\b(hr|human.*resource|recruitment)\b/i.test(lowerQuery)) return '/industries/hr';
     if (/\b(sport|fitness|gym)\b/i.test(lowerQuery)) return '/industries/sports';
-
-    // SPECIFIC SOLUTIONS (before general solutions)
     if (/\b(ai.*agent|voice.*agent|call.*agent)\b/i.test(lowerQuery)) return '/solutions/1';
     if (/\b(face.*recognition|facial.*recognition)\b/i.test(lowerQuery)) return '/solutions/2';
     if (/\b(drone|uav)\b/i.test(lowerQuery)) return '/solutions/3';
     if (/\b(virtual.*assistant|chatbot|ai.*assistant)\b/i.test(lowerQuery)) return '/solutions/4';
     if (/\b(interactive.*website|web.*development)\b/i.test(lowerQuery)) return '/solutions/5';
-
-    // General Industries page
-    if (/\b(industries|industry|industr|sector|client.*serve|what.*market|which.*industr)\b/i.test(lowerQuery)) {
-      return '/industries';
-    }
-
-    // General Solutions/Products page
-    if (/\b(solution|product|products|what.*sell|what.*offer|your.*service|show.*product)\b/i.test(lowerQuery)) {
-      return '/solutions';
-    }
-
-    // Contact page
-    if (/\b(contact|reach.*you|phone.*number|email.*address|office.*location|get.*touch|support)\b/i.test(lowerQuery)) {
-      return '/contact';
-    }
-
-    // Careers page
-    if (/\b(career|job|hiring|vacancy|work.*with.*you|join.*team|employment|opening)\b/i.test(lowerQuery)) {
-      return '/careers';
-    }
-
-    // Blog page
-    if (/\b(blog|article|news|post|read)\b/i.test(lowerQuery)) {
-      return '/blog';
-    }
-
-    // About Us - FIXED: More specific patterns only
-    if (/\b(about.*company|about.*business|who.*are.*you|your.*company|company.*background|company.*history|mission.*vision|tell.*me.*about.*you|what.*is.*your.*company)\b/i.test(lowerQuery)) {
-      return '/about-us';
-    }
+    if (/\b(industries|industry|industr|sector|client.*serve|what.*market|which.*industr)\b/i.test(lowerQuery)) return '/industries';
+    if (/\b(solution|product|products|what.*sell|what.*offer|your.*service|show.*product)\b/i.test(lowerQuery)) return '/solutions';
+    if (/\b(contact|reach.*you|phone.*number|email.*address|office.*location|get.*touch|support)\b/i.test(lowerQuery)) return '/contact';
+    if (/\b(career|job|hiring|vacancy|work.*with.*you|join.*team|employment|opening)\b/i.test(lowerQuery)) return '/careers';
+    if (/\b(blog|article|news|post|read)\b/i.test(lowerQuery)) return '/blog';
+    if (/\b(about.*company|about.*business|who.*are.*you|your.*company|company.*background|company.*history|mission.*vision|tell.*me.*about.*you|what.*is.*your.*company)\b/i.test(lowerQuery)) return '/about-us';
 
     return null;
   };
-
 
   const truncateToTokens = (text: string, maxTokens: number = 200): string => {
     const words = text.split(/\s+/);
@@ -187,22 +156,6 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
       let finalResponse = truncateToTokens(data.answer, 200);
 
       if (navigationPath) {
-        const pageNames: { [key: string]: string } = {
-          '/': 'Home', '/about-us': 'About Us', '/solutions': 'Solutions',
-          '/solutions/1': 'AI Agent', '/solutions/2': 'Face Recognition',
-          '/solutions/3': 'Drones', '/solutions/4': 'AI Assistant',
-          '/solutions/5': 'Websites', '/industries': 'Industries',
-          '/industries/hotel': 'Hotel Industry', '/industries/restaurant': 'Restaurant Industry',
-          '/industries/supermarket': 'Supermarket', '/industries/export-import': 'Export-Import',
-          '/industries/logistics': 'Logistics', '/industries/education': 'Education',
-          '/industries/realestate': 'Real Estate', '/industries/finance': 'Finance',
-          '/industries/hr': 'HR', '/industries/sports': 'Sports',
-          '/contact': 'Contact', '/careers': 'Careers', '/blog': 'Blog'
-        };
-
-        const pageName = pageNames[navigationPath] || 'page';
-        // finalResponse += ` I'm taking you to the ${pageName} page now.`;
-
         setPendingNavigation(navigationPath);
       }
 
@@ -267,13 +220,11 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
         console.log('✅ Speech finished');
         setIsSpeaking(false);
 
-        // Only close if navigating to another page
         if (navigationPath) {
           setTimeout(() => {
             onClose();
           }, 1000);
         }
-        // Otherwise stay open for next query
       };
 
       utterance.onerror = (event) => {
@@ -332,144 +283,142 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-end z-50 p-2 pointer-events-none">
-      <div className="bg-white rounded-xl w-80 h-80 shadow-2xl relative flex flex-col overflow-hidden mr-4 pointer-events-auto">
+    <div className="fixed bottom-32 right-8 w-80 h-80 bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50 animate-fade-in-right">
+      
+      {/* Header */}
+      <div className="flex-shrink-0 relative p-3 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
+        <button
+          type="button"
+          onClick={handleClose}
+          className="absolute top-2 right-2 p-1 hover:bg-white/20 rounded-full transition-colors"
+          aria-label="Close assistant"
+        >
+          <X className="w-4 h-4 text-white" />
+        </button>
 
-        {/* Header */}
-        <div className="flex-shrink-0 relative p-3 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="absolute top-2 right-2 p-1 hover:bg-white/20 rounded-full transition-colors"
-            aria-label="Close assistant"
-          >
-            <X className="w-4 h-4 text-white" />
-          </button>
+        <button
+          type="button"
+          onClick={handleClearConversation}
+          className="absolute top-2 right-10 p-1 hover:bg-white/20 rounded-full transition-colors text-white text-sm"
+          aria-label="Clear conversation"
+          title="Clear conversation"
+        >
+          <img src={clearIcon} alt="Clear" className="w-4 h-4" /> 
+        </button>
 
-          {/* Clear conversation button */}
-          <button
-            type="button"
-            onClick={handleClearConversation}
-            className="absolute top-2 right-10 p-1 hover:bg-white/20 rounded-full transition-colors text-white text-sm"
-            aria-label="Clear conversation"
-            title="Clear conversation"
-          >
-            🔄
-          </button>
+        <div className="text-center pr-16">
+          <h3 className="text-sm font-bold text-white">Voice Assistant</h3>
+          <p className="text-blue-100 text-xs">Speak naturally</p>
+        </div>
+      </div>
 
-          <div className="text-center pr-16">
-            <h3 className="text-sm font-bold text-white">Voice Assistant</h3>
-            <p className="text-blue-100 text-xs">Speak naturally</p>
-          </div>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        
+        {/* Mic/Robot */}
+        <div className="flex justify-center">
+          {isSpeaking ? (
+            <div className="relative">
+              <img src={robotGif} alt="AI" className="w-16 h-16 object-contain animate-bounce" />
+              <div className="absolute -bottom-1 w-16 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={isListening ? stopListening : startListening}
+              disabled={isProcessing}
+              className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-lg ${
+                isListening
+                  ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
+                  : isProcessing
+                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
+                  : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
+              }`}
+              aria-label={isListening ? 'Stop listening' : 'Start listening'}
+            >
+              {isListening ? <MicOff className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-white" />}
+            </button>
+          )}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {/* Status */}
+        <div className="text-center">
+          {isListening && <p className="text-red-600 text-xs font-semibold animate-pulse">🎙️ Listening...</p>}
+          {isProcessing && <p className="text-yellow-600 text-xs font-semibold">🤔 Processing...</p>}
+          {isSpeaking && <p className="text-purple-600 text-xs font-semibold animate-pulse">🤖 Speaking...</p>}
+          {!isListening && !isProcessing && !isSpeaking && <p className="text-gray-600 text-xs">Tap microphone to speak</p>}
+        </div>
 
-          {/* Mic/Robot */}
+        {/* Transcript */}
+        {transcript && (
+          <div className="bg-blue-50 rounded-lg p-2">
+            <div className="flex items-start gap-2">
+              <Mic className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-blue-900">You:</p>
+                <p className="text-blue-800 text-xs break-words">{transcript}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Response */}
+        {response && (
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-2">
+            <div className="flex items-start gap-2">
+              <Volume2 className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-purple-900">AI:</p>
+                <p className="text-purple-800 text-xs break-words whitespace-pre-wrap">
+                  {isSpeaking ? displayedText : response}
+                  {isSpeaking && <span className="animate-pulse">|</span>}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Manual Navigate Button */}
+        {pendingNavigation && !isSpeaking && (
           <div className="flex justify-center">
-            {isSpeaking ? (
-              <div className="relative">
-                <img src={robotGif} alt="AI" className="w-16 h-16 object-contain animate-bounce" />
-                <div className="absolute -bottom-1 w-16 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" />
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={isListening ? stopListening : startListening}
-                disabled={isProcessing}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-lg ${isListening
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
-                    : isProcessing
-                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
-                  }`}
-                aria-label={isListening ? 'Stop listening' : 'Start listening'}
-              >
-                {isListening ? <MicOff className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-white" />}
-              </button>
-            )}
-          </div>
-
-          {/* Status */}
-          <div className="text-center">
-            {isListening && <p className="text-red-600 text-xs font-semibold animate-pulse">🎙️ Listening...</p>}
-            {isProcessing && <p className="text-yellow-600 text-xs font-semibold">🤔 Processing...</p>}
-            {isSpeaking && <p className="text-purple-600 text-xs font-semibold animate-pulse">🤖 Speaking...</p>}
-            {!isListening && !isProcessing && !isSpeaking && <p className="text-gray-600 text-xs">Tap microphone to speak</p>}
-          </div>
-
-          {/* Transcript */}
-          {transcript && (
-            <div className="bg-blue-50 rounded-lg p-2">
-              <div className="flex items-start gap-2">
-                <Mic className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-blue-900">You:</p>
-                  <p className="text-blue-800 text-xs break-words">{transcript}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Response */}
-          {response && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-2">
-              <div className="flex items-start gap-2">
-                <Volume2 className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-purple-900">AI:</p>
-                  <p className="text-purple-800 text-xs break-words whitespace-pre-wrap">
-                    {isSpeaking ? displayedText : response}
-                    {isSpeaking && <span className="animate-pulse">|</span>}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Manual Navigate Button */}
-          {pendingNavigation && !isSpeaking && (
-            <div className="flex justify-center">
-              <button
-                type="button"
-                onClick={handleNavigateNow}
-                className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-semibold hover:scale-105 transition-transform shadow-md"
-              >
-                Go to Page →
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="flex-shrink-0 p-2 border-t border-gray-200 bg-gray-50">
-          <div className="flex justify-center gap-1.5">
             <button
               type="button"
-              onClick={() => handleQuickAction("Tell me about your company")}
-              disabled={isProcessing || isSpeaking}
-              className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors disabled:opacity-50"
+              onClick={handleNavigateNow}
+              className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-semibold hover:scale-105 transition-transform shadow-md"
             >
-              About
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickAction("Show me hotel industry")}
-              disabled={isProcessing || isSpeaking}
-              className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
-            >
-              Hotel
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickAction("Contact")}
-              disabled={isProcessing || isSpeaking}
-              className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium hover:bg-green-200 transition-colors disabled:opacity-50"
-            >
-              Contact
+              Go to Page →
             </button>
           </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex-shrink-0 p-2 border-t border-gray-200 bg-gray-50">
+        <div className="flex justify-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => handleQuickAction("Tell me about your company")}
+            disabled={isProcessing || isSpeaking}
+            className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors disabled:opacity-50"
+          >
+            About
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickAction("Show me hotel industry")}
+            disabled={isProcessing || isSpeaking}
+            className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
+          >
+            Hotel
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickAction("Contact")}
+            disabled={isProcessing || isSpeaking}
+            className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium hover:bg-green-200 transition-colors disabled:opacity-50"
+          >
+            Contact
+          </button>
         </div>
       </div>
     </div>
