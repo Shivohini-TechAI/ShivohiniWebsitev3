@@ -6,9 +6,10 @@ import robotGif from '../assets/Robot-Bot 3D.gif';
 
 interface VoiceAssistantProps {
   onClose: () => void;
+  userDetails?: any;
 }
 
-const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
+const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [response, setResponse] = useState('');
@@ -21,10 +22,10 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
 
   // Initialize Speech Recognition
   useEffect(() => {
-    const SpeechRecognition = 
-      (window as any).SpeechRecognition || 
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) {
       console.error('Speech recognition not supported');
       return;
@@ -40,7 +41,7 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
       console.log('You said:', speechText);
       setTranscript(speechText);
       setIsListening(false);
-      
+
       await handleQuery(speechText);
     };
 
@@ -65,7 +66,30 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
     };
   }, []);
 
-  // Typewriter effect for response
+  // Play welcome greeting when component mounts (only once per session)
+  useEffect(() => {
+    playWelcomeGreeting();
+  }, []);
+
+  // Welcome greeting function
+  const playWelcomeGreeting = () => {
+    const hasGreetedInSession = sessionStorage.getItem('voiceAssistantGreeted');
+
+    if (hasGreetedInSession) {
+      return; // Skip greeting if already played in session
+    }
+
+    const greeting = userDetails
+      ? `Hello ${userDetails.name}! I am Shivohini Voice Assistant. How can I assist you today?`
+      : "Hello! I am Shivohini Voice Assistant. How can I assist you today?";
+
+    setResponse(greeting);
+    setIsSpeaking(true);
+    speakResponse(greeting, null);
+    sessionStorage.setItem('voiceAssistantGreeted', 'true');
+  };
+
+  // Typewriter effect
   useEffect(() => {
     if (response && isSpeaking) {
       setDisplayedText('');
@@ -78,97 +102,117 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
           clearInterval(timer);
         }
       }, 30);
-      
+
       return () => clearInterval(timer);
     }
   }, [response, isSpeaking]);
 
-  // Smart hardcoded navigation detection
   const detectNavigationIntent = (query: string): string | null => {
     const lowerQuery = query.toLowerCase();
-    
-    // Remove common filler words for better matching
-    const cleanQuery = lowerQuery
-      .replace(/\b(can you|could you|please|i want to|i wanna|show me|tell me about|what are|what is|take me to)\b/g, '')
-      .trim();
-    
-    console.log('Clean query:', cleanQuery);
-    
-    // Product page
-    const productKeywords = /product|sell|offer|buy|purchase|catalog|catalogue|item|service|solution|goods|merchandise|inventory|stuff.*have|what.*do.*sell|what.*available|show.*offer/i;
-    if (productKeywords.test(lowerQuery)) {
-      return '/solutions';
-    }
-    
-    // Industries page
-    const industryKeywords = /industr|sector|field|client|customer|serve|market|vertical|work with|target|who.*use|domain|business.*type/i;
-    if (industryKeywords.test(lowerQuery)) {
-      return '/industries';
-    }
-    
-    // Contact page
-    const contactKeywords = /contact|reach|phone|call|email|address|location|touch|support|help.*desk|speak.*to|talk.*to|get.*hold|message.*you|office/i;
-    if (contactKeywords.test(lowerQuery)) {
-      return '/contact';
-    }
-    
-    // About page
-    const aboutKeywords = /about|who.*you|company|business|background|story|mission|vision|history|organization|what.*do.*do|tell.*about.*you/i;
-    if (aboutKeywords.test(lowerQuery)) {
-      return '/about-us';
-    }
-    
-    // Home page
-    const homeKeywords = /home.*page|go.*home|main.*page|start.*page|beginning|homepage|landing.*page/i;
-    if (homeKeywords.test(lowerQuery)) {
+
+    // Home
+    if (/\b(home|main.*page|homepage|go.*home|take.*home)\b/i.test(lowerQuery)) {
       return '/';
     }
-    
+
+    // SPECIFIC INDUSTRIES FIRST (before general keywords)
+    if (/\b(hotel|hostel)\b/i.test(lowerQuery)) return '/industries/hotel';
+    if (/\b(restaurant|cafe|dining)\b/i.test(lowerQuery)) return '/industries/restaurant';
+    if (/\b(supermarket|retail|grocery)\b/i.test(lowerQuery)) return '/industries/supermarket';
+    if (/\b(export|import|trade)\b/i.test(lowerQuery)) return '/industries/export-import';
+    if (/\b(logistic|supply.*chain)\b/i.test(lowerQuery)) return '/industries/logistics';
+    if (/\b(education|school|university)\b/i.test(lowerQuery)) return '/industries/education';
+    if (/\b(real.*estate|property)\b/i.test(lowerQuery)) return '/industries/realestate';
+    if (/\b(finance|banking)\b/i.test(lowerQuery)) return '/industries/finance';
+    if (/\b(hr|human.*resource|recruitment)\b/i.test(lowerQuery)) return '/industries/hr';
+    if (/\b(sport|fitness|gym)\b/i.test(lowerQuery)) return '/industries/sports';
+
+    // SPECIFIC SOLUTIONS (before general solutions)
+    if (/\b(ai.*agent|voice.*agent|call.*agent)\b/i.test(lowerQuery)) return '/solutions/1';
+    if (/\b(face.*recognition|facial.*recognition)\b/i.test(lowerQuery)) return '/solutions/2';
+    if (/\b(drone|uav)\b/i.test(lowerQuery)) return '/solutions/3';
+    if (/\b(virtual.*assistant|chatbot|ai.*assistant)\b/i.test(lowerQuery)) return '/solutions/4';
+    if (/\b(interactive.*website|web.*development)\b/i.test(lowerQuery)) return '/solutions/5';
+
+    // General Industries page
+    if (/\b(industries|industry|industr|sector|client.*serve|what.*market|which.*industr)\b/i.test(lowerQuery)) {
+      return '/industries';
+    }
+
+    // General Solutions/Products page
+    if (/\b(solution|product|products|what.*sell|what.*offer|your.*service|show.*product)\b/i.test(lowerQuery)) {
+      return '/solutions';
+    }
+
+    // Contact page
+    if (/\b(contact|reach.*you|phone.*number|email.*address|office.*location|get.*touch|support)\b/i.test(lowerQuery)) {
+      return '/contact';
+    }
+
+    // Careers page
+    if (/\b(career|job|hiring|vacancy|work.*with.*you|join.*team|employment|opening)\b/i.test(lowerQuery)) {
+      return '/careers';
+    }
+
+    // Blog page
+    if (/\b(blog|article|news|post|read)\b/i.test(lowerQuery)) {
+      return '/blog';
+    }
+
+    // About Us - FIXED: More specific patterns only
+    if (/\b(about.*company|about.*business|who.*are.*you|your.*company|company.*background|company.*history|mission.*vision|tell.*me.*about.*you|what.*is.*your.*company)\b/i.test(lowerQuery)) {
+      return '/about-us';
+    }
+
     return null;
   };
 
-  // NEW: Handle query - answer FIRST, then navigate
+
+  const truncateToTokens = (text: string, maxTokens: number = 200): string => {
+    const words = text.split(/\s+/);
+    if (words.length <= maxTokens) return text;
+    return words.slice(0, maxTokens).join(' ') + '...';
+  };
+
   const handleQuery = async (query: string) => {
     setIsProcessing(true);
-    
+
     try {
-      // Check if user wants to navigate
       const navigationPath = detectNavigationIntent(query);
-      
-      // Get the answer from backend (regardless of navigation intent)
+
       const { data } = await axios.post('http://localhost:8000/api/chat', {
         query
       });
 
-      console.log('Bot response:', data);
-      
-      // If navigation detected, add redirect message to the response
-      let finalResponse = data.answer;
-      
+      let finalResponse = truncateToTokens(data.answer, 200);
+
       if (navigationPath) {
         const pageNames: { [key: string]: string } = {
-          '/products': 'Products',
-          '/industries': 'Industries',
-          '/contact': 'Contact Us',
-          '/about': 'About Us',
-          '/': 'Home'
+          '/': 'Home', '/about-us': 'About Us', '/solutions': 'Solutions',
+          '/solutions/1': 'AI Agent', '/solutions/2': 'Face Recognition',
+          '/solutions/3': 'Drones', '/solutions/4': 'AI Assistant',
+          '/solutions/5': 'Websites', '/industries': 'Industries',
+          '/industries/hotel': 'Hotel Industry', '/industries/restaurant': 'Restaurant Industry',
+          '/industries/supermarket': 'Supermarket', '/industries/export-import': 'Export-Import',
+          '/industries/logistics': 'Logistics', '/industries/education': 'Education',
+          '/industries/realestate': 'Real Estate', '/industries/finance': 'Finance',
+          '/industries/hr': 'HR', '/industries/sports': 'Sports',
+          '/contact': 'Contact', '/careers': 'Careers', '/blog': 'Blog'
         };
-        
-        const pageName = pageNames[navigationPath] || 'that page';
-        finalResponse += `\n\nWould you like me to take you to the ${pageName} page for more details?`;
-        
-        // Store navigation path for later
+
+        const pageName = pageNames[navigationPath] || 'page';
+        // finalResponse += ` I'm taking you to the ${pageName} page now.`;
+
         setPendingNavigation(navigationPath);
-        console.log(`📍 Navigation available to: ${navigationPath}`);
       }
-      
+
       setResponse(finalResponse);
       setIsSpeaking(true);
       speakResponse(finalResponse, navigationPath);
-      
+
     } catch (error) {
       console.error('Error:', error);
-      setResponse('Sorry, I encountered an error. Please make sure the backend is running.');
+      setResponse('Error occurred.');
       setIsSpeaking(false);
     } finally {
       setIsProcessing(false);
@@ -177,20 +221,20 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
 
   const startListening = () => {
     if (!recognitionRef.current) {
-      alert('Speech recognition not supported in this browser. Please use Chrome.');
+      alert('Speech not supported. Use Chrome.');
       return;
     }
-    
+
     setTranscript('');
     setResponse('');
     setDisplayedText('');
     setIsSpeaking(false);
     setPendingNavigation(null);
-    
+
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
-    
+
     recognitionRef.current.start();
     setIsListening(true);
   };
@@ -202,34 +246,56 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
     setIsListening(false);
   };
 
-  // NEW: Updated speech function with navigation after speech ends
   const speakResponse = (text: string, navigationPath: string | null = null) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      
+
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
+      utterance.rate = 1.0;
       utterance.pitch = 1;
       utterance.lang = 'en-US';
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-        
-        // Navigate after speech ends (if navigation path exists)
+
+      utterance.onstart = () => {
+        console.log('🗣️ Speech started');
         if (navigationPath) {
-          setTimeout(() => {
-            console.log(`🔀 Navigating to: ${navigationPath}`);
-            navigate(navigationPath);
-            onClose();
-          }, 1500); // Wait 1.5 seconds after speech ends
+          console.log(`🔀 Navigating to: ${navigationPath}`);
+          navigate(navigationPath);
         }
       };
-      
+
+      utterance.onend = () => {
+        console.log('✅ Speech finished');
+        setIsSpeaking(false);
+
+        // Only close if navigating to another page
+        if (navigationPath) {
+          setTimeout(() => {
+            onClose();
+          }, 1000);
+        }
+        // Otherwise stay open for next query
+      };
+
+      utterance.onerror = (event) => {
+        console.error('Speech error:', event);
+        setIsSpeaking(false);
+        if (navigationPath) {
+          onClose();
+        }
+      };
+
       window.speechSynthesis.speak(utterance);
+
+    } else {
+      if (navigationPath) {
+        navigate(navigationPath);
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      }
     }
   };
 
-  // NEW: Manual navigation button handler
   const handleNavigateNow = () => {
     if (pendingNavigation) {
       window.speechSynthesis.cancel();
@@ -244,132 +310,116 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
     await handleQuery(query);
   };
 
+  const handleClearConversation = () => {
+    setTranscript('');
+    setResponse('');
+    setDisplayedText('');
+    setPendingNavigation(null);
+    setIsSpeaking(false);
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
   const handleClose = () => {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
-    
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
     }
-    
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[85vh] shadow-2xl relative flex flex-col overflow-hidden">
-        
-        {/* Sticky Header with Close Button */}
-        <div className="flex-shrink-0 relative p-6 pb-4 border-b border-gray-200">
+    <div className="fixed inset-0 flex items-center justify-end z-50 p-2 pointer-events-none">
+      <div className="bg-white rounded-xl w-80 h-80 shadow-2xl relative flex flex-col overflow-hidden mr-4 pointer-events-auto">
+
+        {/* Header */}
+        <div className="flex-shrink-0 relative p-3 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
           <button
+            type="button"
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 z-10"
-            aria-label="Close voice assistant"
+            className="absolute top-2 right-2 p-1 hover:bg-white/20 rounded-full transition-colors"
+            aria-label="Close assistant"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-4 h-4 text-white" />
           </button>
 
-          <div className="text-center pr-10">
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">Voice Assistant</h3>
-            <p className="text-gray-600 text-sm">Speak naturally and I'll help you</p>
+          {/* Clear conversation button */}
+          <button
+            type="button"
+            onClick={handleClearConversation}
+            className="absolute top-2 right-10 p-1 hover:bg-white/20 rounded-full transition-colors text-white text-sm"
+            aria-label="Clear conversation"
+            title="Clear conversation"
+          >
+            🔄
+          </button>
+
+          <div className="text-center pr-16">
+            <h3 className="text-sm font-bold text-white">Voice Assistant</h3>
+            <p className="text-blue-100 text-xs">Speak naturally</p>
           </div>
         </div>
 
-        {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          
-          {/* Robot GIF or Microphone */}
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+
+          {/* Mic/Robot */}
           <div className="flex justify-center">
             {isSpeaking ? (
-              <div className="relative flex flex-col items-center">
-                <img 
-                  src={robotGif} 
-                  alt="AI Speaking" 
-                  className="w-32 h-32 object-contain animate-bounce"
-                />
-                <div className="absolute -bottom-4 w-32 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full animate-pulse" />
+              <div className="relative">
+                <img src={robotGif} alt="AI" className="w-16 h-16 object-contain animate-bounce" />
+                <div className="absolute -bottom-1 w-16 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" />
               </div>
             ) : (
-              <div className="relative">
-                <button
-                  onClick={isListening ? stopListening : startListening}
-                  disabled={isProcessing}
-                  className={`w-28 h-28 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${
-                    isListening
-                      ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse shadow-2xl'
-                      : isProcessing
-                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-xl'
+              <button
+                type="button"
+                onClick={isListening ? stopListening : startListening}
+                disabled={isProcessing}
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-lg ${isListening
+                    ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
+                    : isProcessing
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
                   }`}
-                >
-                  {isListening ? (
-                    <MicOff className="w-10 h-10 text-white" />
-                  ) : (
-                    <Mic className="w-10 h-10 text-white" />
-                  )}
-                </button>
-
-                {isListening && (
-                  <>
-                    <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-20" />
-                    <div className="absolute inset-2 bg-red-400 rounded-full animate-ping opacity-30 delay-75" />
-                    <div className="absolute inset-4 bg-red-400 rounded-full animate-ping opacity-40 delay-150" />
-                  </>
-                )}
-
-                {isProcessing && (
-                  <div className="absolute -inset-4 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
-                )}
-              </div>
+                aria-label={isListening ? 'Stop listening' : 'Start listening'}
+              >
+                {isListening ? <MicOff className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-white" />}
+              </button>
             )}
           </div>
 
-          {/* Status Text */}
+          {/* Status */}
           <div className="text-center">
-            {isListening && (
-              <p className="text-red-600 font-semibold animate-pulse text-sm">
-                🎙️ Listening... Click to stop
-              </p>
-            )}
-            {isProcessing && (
-              <p className="text-yellow-600 font-semibold text-sm">
-                🤔 Processing your request...
-              </p>
-            )}
-            {isSpeaking && (
-              <p className="text-purple-600 font-semibold animate-pulse text-sm">
-                🤖 AI is speaking...
-              </p>
-            )}
-            {!isListening && !isProcessing && !isSpeaking && (
-              <p className="text-gray-600 text-sm">
-                Click the microphone to start speaking
-              </p>
-            )}
+            {isListening && <p className="text-red-600 text-xs font-semibold animate-pulse">🎙️ Listening...</p>}
+            {isProcessing && <p className="text-yellow-600 text-xs font-semibold">🤔 Processing...</p>}
+            {isSpeaking && <p className="text-purple-600 text-xs font-semibold animate-pulse">🤖 Speaking...</p>}
+            {!isListening && !isProcessing && !isSpeaking && <p className="text-gray-600 text-xs">Tap microphone to speak</p>}
           </div>
 
           {/* Transcript */}
           {transcript && (
-            <div className="bg-blue-50 rounded-2xl p-4">
-              <div className="flex items-start space-x-2">
-                <Mic className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="bg-blue-50 rounded-lg p-2">
+              <div className="flex items-start gap-2">
+                <Mic className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-blue-900 mb-1">You said:</p>
-                  <p className="text-blue-800 text-sm break-words">{transcript}</p>
+                  <p className="text-xs font-semibold text-blue-900">You:</p>
+                  <p className="text-blue-800 text-xs break-words">{transcript}</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Response with Typewriter Effect */}
+          {/* Response */}
           {response && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-4">
-              <div className="flex items-start space-x-2">
-                <Volume2 className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-2">
+              <div className="flex items-start gap-2">
+                <Volume2 className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-purple-900 mb-1">AI Assistant:</p>
-                  <p className="text-purple-800 text-sm break-words whitespace-pre-wrap">
+                  <p className="text-xs font-semibold text-purple-900">AI:</p>
+                  <p className="text-purple-800 text-xs break-words whitespace-pre-wrap">
                     {isSpeaking ? displayedText : response}
                     {isSpeaking && <span className="animate-pulse">|</span>}
                   </p>
@@ -378,12 +428,13 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
             </div>
           )}
 
-          {/* NEW: Show "Go to Page" button if navigation is available */}
+          {/* Manual Navigate Button */}
           {pendingNavigation && !isSpeaking && (
-            <div className="flex justify-center pt-2">
+            <div className="flex justify-center">
               <button
+                type="button"
                 onClick={handleNavigateNow}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-semibold hover:scale-105 transition-transform shadow-md"
               >
                 Go to Page →
               </button>
@@ -391,27 +442,30 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose }) => {
           )}
         </div>
 
-        {/* Sticky Footer with Quick Actions */}
-        <div className="flex-shrink-0 p-6 pt-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex flex-wrap justify-center gap-2">
+        {/* Footer */}
+        <div className="flex-shrink-0 p-2 border-t border-gray-200 bg-gray-50">
+          <div className="flex justify-center gap-1.5">
             <button
-              onClick={() => handleQuickAction("Tell me about your products")}
+              type="button"
+              onClick={() => handleQuickAction("Tell me about your company")}
               disabled={isProcessing || isSpeaking}
-              className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors disabled:opacity-50"
             >
-              Products
+              About
             </button>
             <button
-              onClick={() => handleQuickAction("What industries do you serve?")}
+              type="button"
+              onClick={() => handleQuickAction("Show me hotel industry")}
               disabled={isProcessing || isSpeaking}
-              className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-xs font-medium hover:bg-purple-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium hover:bg-purple-200 transition-colors disabled:opacity-50"
             >
-              Industries
+              Hotel
             </button>
             <button
-              onClick={() => handleQuickAction("How can I contact you?")}
+              type="button"
+              onClick={() => handleQuickAction("Contact")}
               disabled={isProcessing || isSpeaking}
-              className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-xs font-medium hover:bg-green-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium hover:bg-green-200 transition-colors disabled:opacity-50"
             >
               Contact
             </button>
