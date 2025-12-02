@@ -1,15 +1,27 @@
-import Contact from "../models/Contact.js";
+import { supabase } from "../supabaseClient.js";
 import nodemailer from "nodemailer";
 
 export const submitContact = async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
 
-    // ✅ Save message to MongoDB
-    const newMessage = new Contact({ name, email, subject, message });
-    await newMessage.save();
+    // ==========================================
+    // ✅ Save message to Supabase (instead of MongoDB)
+    // ==========================================
+    const { data, error } = await supabase
+      .from("contacts")
+      .insert([
+        { name, email, subject, message }
+      ]);
 
-    // ✅ Send email notification
+    if (error) {
+      console.error("❌ Supabase insert error:", error);
+      return res.status(500).json({ success: false, error: "Database error" });
+    }
+
+    // ==========================================
+    // ✉️ Send email notification (unchanged)
+    // ==========================================
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -32,8 +44,9 @@ export const submitContact = async (req, res) => {
       `,
     });
 
-    console.log("✅ Contact saved and email sent:", name);
+    console.log("✅ Contact saved to Supabase & email sent:", name);
     res.status(200).json({ success: true, message: "Message sent successfully!" });
+
   } catch (error) {
     console.error("❌ Contact form error:", error);
     res.status(500).json({ success: false, error: "Error sending message" });
