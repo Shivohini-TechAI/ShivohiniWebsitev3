@@ -38,26 +38,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
     inputRef.current?.focus();
   }, []);
 
-  const simulateBotResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('product') || lowerMessage.includes('service')) {
-      return "We offer AI Agents, Face Recognition Systems, Customized Drones, AI Virtual Assistants, and Interactive Websites. Which product interests you most?";
-    } else if (lowerMessage.includes('industry') || lowerMessage.includes('sector')) {
-      return "We serve multiple industries including Hotels, Restaurants, Education, Healthcare, Finance, Real Estate, and more. Each solution is customized for specific industry needs.";
-    } else if (lowerMessage.includes('contact') || lowerMessage.includes('reach')) {
-      return "You can reach us at bhatiagunjan27@gmail.com or call us at +91-7688929473. We'd love to discuss your AI needs!";
-    } else if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
-      return "Our pricing varies based on your specific requirements. Let's schedule a consultation to discuss your needs and provide a customized quote.";
-    } else if (lowerMessage.includes('demo') || lowerMessage.includes('trial')) {
-      return "We'd be happy to provide a demo! Please share your contact details or call us at +91-7688929473 to schedule a personalized demonstration.";
-    } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-      return "Hello! Welcome to Shivohoni TechAI. I'm here to help you learn about our AI solutions. What would you like to know?";
-    } else {
-      return "That's a great question! I'd recommend speaking with our team for detailed information. You can reach us at bhatiagunjan27@gmail.com or +91-7688929473.";
-    }
-  };
-
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -72,18 +52,43 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate bot typing delay
-    setTimeout(() => {
+    try {
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      const phone = userDetails.phone || '';
+
+      const response = await fetch('http://localhost:8000/web/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: inputMessage,
+          phone: phone
+        }),
+      });
+
+      const data = await response.json();
+
       const botResponse: Message = {
         id: messages.length + 2,
-        text: simulateBotResponse(inputMessage),
+        text: data.response || "I apologize, but I'm having trouble connecting right now.",
         sender: 'bot',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorResponse: Message = {
+        id: messages.length + 2,
+        text: "Sorry, I'm having trouble connecting to the server. Please try again later.",
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 1000);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -122,29 +127,25 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div className={`flex items-start space-x-2 max-w-[80%] ${
-              message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-            }`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                message.sender === 'user' 
-                  ? 'bg-blue-600' 
-                  : 'bg-gradient-to-r from-purple-500 to-blue-500'
+            <div className={`flex items-start space-x-2 max-w-[80%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
               }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === 'user'
+                  ? 'bg-blue-600'
+                  : 'bg-gradient-to-r from-purple-500 to-blue-500'
+                }`}>
                 {message.sender === 'user' ? (
                   <User className="w-4 h-4 text-white" />
                 ) : (
                   <Bot className="w-4 h-4 text-white" />
                 )}
               </div>
-              <div className={`rounded-2xl p-3 ${
-                message.sender === 'user'
+              <div className={`rounded-2xl p-3 ${message.sender === 'user'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-900'
-              }`}>
-                <p className="text-sm">{message.text}</p>
-                <p className={`text-xs mt-1 ${
-                  message.sender === 'user' ? 'text-blue-200' : 'text-gray-500'
                 }`}>
+                <p className="text-sm">{message.text}</p>
+                <p className={`text-xs mt-1 ${message.sender === 'user' ? 'text-blue-200' : 'text-gray-500'
+                  }`}>
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>

@@ -11,6 +11,27 @@ load_dotenv()
 
 app = FastAPI()
 
+# Mount Web Chat Backend
+print("🔄 Attempting to mount Web Chat Backend...")
+try:
+    import sys
+    import os
+    # Ensure current directory is in python path so we can import web_chat
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    if current_dir not in sys.path:
+        sys.path.append(current_dir)
+        
+    from web_chat import app as web_chat_app
+    app.mount("/web", web_chat_app)
+    print("✅ Web Chat Backend mounted at /web")
+except Exception as e:
+    print(f"❌ Failed to mount Web Chat Backend: {e}")
+    import traceback
+    traceback.print_exc()
+
+
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -203,3 +224,4 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
