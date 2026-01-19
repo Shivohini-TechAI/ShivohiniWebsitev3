@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -8,9 +7,9 @@ import path from "path";
 import jobsRouter from "./routes/jobs.js";
 import productsRouter from "./routes/products.js";
 import industriesRouter from "./routes/industries.js";
-import errorHandler from "./middleware/errorHandler.js";
 import applicationRouter from "./routes/applicationRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
 
@@ -25,7 +24,7 @@ app.use(cors({
 app.use(express.json());
 
 // ================================
-// ✅ Serve Uploads Folder (Images + Resumes)
+// 📂 Serve Uploads Folder (Images + Resumes)
 // ================================
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -45,11 +44,11 @@ app.get("/api/health", (req, res) => res.json({ ok: true }));
 // Error handler
 app.use(errorHandler);
 
-// Connect to MongoDB and start server
-mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => console.error("MongoDB connection error:", err));
+// ================================
+// 🚀 START SERVER (NO MONGO NEEDED)
+// ================================
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+console.log("SUPABASE_URL:", process.env.SUPABASE_URL);

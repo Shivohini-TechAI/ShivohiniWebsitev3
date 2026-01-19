@@ -1,6 +1,6 @@
 import express from "express";
 import nodemailer from "nodemailer";
-import Application from "../models/Application.js";
+import { supabase } from "../supabaseClient.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -15,18 +15,29 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Save application in MongoDB
-    const application = new Application({
-      name,
-      email,
-      phone,
-      message,
-      resumeLink,
-    });
+    // =====================================
+    // ✅ Save application in SUPABASE (Not MongoDB)
+    // =====================================
+    const { data, error } = await supabase
+      .from("applications")
+      .insert([
+        {
+          name,
+          email,
+          phone,
+          message,
+          resume_link: resumeLink,
+        },
+      ]);
 
-    await application.save();
+    if (error) {
+      console.error("❌ Supabase insert error:", error);
+      return res.status(500).json({ message: "Database error" });
+    }
 
-    // Send email to HR
+    // =====================================
+    // ✉️ Send email to HR (UNCHANGED)
+    // =====================================
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -56,8 +67,10 @@ ${resumeLink}
 
     await transporter.sendMail(mailOptions);
 
-    console.log("✅ Application stored + Email sent to HR");
+    console.log("✅ Application saved in Supabase + HR email sent");
+
     res.status(200).json({ message: "Application submitted successfully!" });
+
   } catch (error) {
     console.log("❌ Error submitting application:", error);
     res.status(500).json({ message: "Server error" });
