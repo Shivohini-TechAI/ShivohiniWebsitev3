@@ -281,47 +281,50 @@ const AssistantWidget: React.FC = () => {
 
         {/* Voice Panel (OLD - if you still need it) */}
         {isVoicePanelOpen && (
-          <div className="absolute bottom-24 right-0 w-80 bg-white rounded-2xl shadow-2xl p-6 mb-2 animate-fade-in-up border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Voice Assistant</h3>
-              <button
-                onClick={() => setIsVoicePanelOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 text-center">
-                <p className="text-gray-700 mb-4">
-                  {isListening ? 'Listening...' : 'Click the microphone to start'}
-                </p>
-
+          <>
+            <div className="absolute bottom-24 right-0 w-80 bg-white rounded-2xl shadow-2xl p-6 mb-2 animate-fade-in-up border border-gray-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-gray-900">Voice Assistant</h3>
                 <button
-                  onClick={handleMicClick}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-all duration-300 transform hover:scale-105 ${isListening
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
-                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-                    }`}
+                  onClick={() => setIsVoicePanelOpen(false)}
+                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                 >
-                  {isListening ? (
-                    <Volume2 className="w-8 h-8 text-white" />
-                  ) : (
-                    <Mic className="w-8 h-8 text-white" />
-                  )}
+                  <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
 
-              <div className="w-full text-sm text-gray-500 text-center">
-                Voice recognition will be implemented here
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 text-center">
+                  <p className="text-gray-700 mb-4">
+                    {isListening ? 'Listening...' : 'Click the microphone to start'}
+                  </p>
+
+                  <button
+                    onClick={handleMicClick}
+                    className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-all duration-300 transform hover:scale-105 ${isListening
+                      ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
+                      }`}
+                  >
+                    {isListening ? (
+                      <Volume2 className="w-8 h-8 text-white" />
+                    ) : (
+                      <Mic className="w-8 h-8 text-white" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="w-full text-sm text-gray-500 text-center">
+                  Voice recognition will be implemented here
+                </div>
               </div>
             </div>
-          </div>
-          <VoiceAssistant
-            onClose={() => setIsVoiceAssistantOpen(false)}
-            userDetails={userDetails}
-          />
+            <VoiceAssistant
+              onClose={() => setIsVoiceAssistantOpen(false)}
+              userDetails={userDetails}
+              sessionId={sessionId}
+            />
+          </>
         )}
 
         {/* Chatbot Panel */}
@@ -440,7 +443,7 @@ const AssistantWidget: React.FC = () => {
 
           <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-green-500 rounded-full border-2 border-white animate-pulse" />
         </button>
-      </div>
+      </div >
     </>
   );
 };
