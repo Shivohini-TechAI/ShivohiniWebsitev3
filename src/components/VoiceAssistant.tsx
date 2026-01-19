@@ -323,35 +323,6 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails, s
   };
 
   return (
-    <div className="fixed inset-0 flex items-end justify-end z-50 p-2 pointer-events-none pb-40">
-      <div className="bg-white rounded-xl w-80 h-80 shadow-2xl relative flex flex-col overflow-hidden mr-4 pointer-events-auto">
-
-        {/* Header */}
-        <div className="flex-shrink-0 relative p-3 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="absolute top-2 right-2 p-1 hover:bg-white/20 rounded-full transition-colors"
-            aria-label="Close assistant"
-          >
-            <X className="w-4 h-4 text-white" />
-          </button>
-
-          {/* Clear conversation button */}
-          <button
-            type="button"
-            onClick={handleClearConversation}
-            className="absolute top-2 right-10 p-1 hover:bg-white/20 rounded-full transition-colors text-white text-sm"
-            aria-label="Clear conversation"
-            title="Clear conversation"
-          >
-            🔄
-          </button>
-
-          <div className="text-center pr-16">
-            <h3 className="text-sm font-bold text-white">Voice Assistant</h3>
-            <p className="text-blue-100 text-xs">Speak naturally</p>
-          </div>
     <div className="fixed bottom-36 right-6 w-80 h-80 bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50 animate-fade-in-right">
 
       <div className="flex-shrink-0 relative p-3 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
@@ -380,41 +351,8 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails, s
         </div>
       </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      {/* Content */}
 
-          {/* Mic/Robot */}
-          <div className="flex justify-center">
-            {isSpeaking ? (
-              <div className="relative">
-                <img src={robotGif} alt="AI" className="w-16 h-16 object-contain animate-bounce" />
-                <div className="absolute -bottom-1 w-16 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" />
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={isListening ? stopListening : startListening}
-                disabled={isProcessing}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-lg ${isListening
-                  ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
-                  : isProcessing
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
-                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
-                  }`}
-                aria-label={isListening ? 'Stop listening' : 'Start listening'}
-              >
-                {isListening ? <MicOff className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-white" />}
-              </button>
-            )}
-          </div>
-
-          {/* Status */}
-          <div className="text-center">
-            {isListening && <p className="text-red-600 text-xs font-semibold animate-pulse">🎙️ Listening...</p>}
-            {isProcessing && <p className="text-yellow-600 text-xs font-semibold">🤔 Processing...</p>}
-            {isSpeaking && <p className="text-purple-600 text-xs font-semibold animate-pulse">🤖 Speaking...</p>}
-            {!isListening && !isProcessing && !isSpeaking && <p className="text-gray-600 text-xs">Tap microphone to speak</p>}
-          </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
 
         <div className="flex justify-center">
@@ -429,10 +367,10 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails, s
               onClick={isListening ? stopListening : startListening}
               disabled={isProcessing}
               className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-lg ${isListening
-                  ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
-                  : isProcessing
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
-                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
+                ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
+                : isProcessing
+                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
+                  : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
                 }`}
               aria-label={isListening ? 'Stop listening' : 'Start listening'}
             >

@@ -500,7 +500,7 @@ async def chat(request: ChatRequest):
             
             return {
                 "answer": (
-                    "I noticed you are interested in our services. That's great! 🎉\n\n"
+                    "I noticed you are interested in our services. That's great! \n\n"
                     "Would you like to schedule a meeting to discuss this further?"
                 ),
                 "source": "service_flow"
