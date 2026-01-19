@@ -7,9 +7,10 @@ import robotGif from '../assets/Robot-Bot 3D.gif';
 interface VoiceAssistantProps {
   onClose: () => void;
   userDetails?: any;
+  sessionId: string;
 }
 
-const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails }) => {
+const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails, sessionId }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [response, setResponse] = useState('');
@@ -180,8 +181,12 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
     try {
       const navigationPath = detectNavigationIntent(query);
 
+      const phone = userDetails?.phone || '';
+
       const { data } = await axios.post('http://localhost:8000/api/chat', {
-        query
+        query,
+        phone,
+        session_id: sessionId
       });
 
       let finalResponse = truncateToTokens(data.answer, 200);
@@ -251,8 +256,47 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.pitch = 1;
+
+      // Better Voice Selection
+      const voices = window.speechSynthesis.getVoices();
+      console.log("Available Voices:", voices.map(v => `${v.name} (${v.lang})`)); // Debugging
+
+      // 1. Specific High-Quality FEMALE Indian Voices
+      const indianFemaleNames = [
+        'Google English (India)',
+        'Microsoft Heera',
+        'Veena'
+      ];
+
+      let selectedVoice = voices.find(voice =>
+        indianFemaleNames.some(name => voice.name.includes(name)) && !voice.name.includes('Male')
+      );
+
+      // 2. Fallback: ANY Female Indian Voice
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice =>
+          voice.lang === 'en-IN' && voice.name.includes('Female')
+        );
+      }
+
+      // 3. Fallback: Google US Female / Zira (Better than Indian Male)
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice =>
+          (voice.name.includes('Google US English') || voice.name.includes('Zira') || (voice.lang === 'en-US' && voice.name.includes('Female')))
+        );
+      }
+
+      if (selectedVoice) {
+        console.log("Selected Voice:", selectedVoice.name);
+        utterance.voice = selectedVoice;
+        // Natural Indian English flow
+        utterance.pitch = 1.5;
+        utterance.rate = 1.5;
+      } else {
+        utterance.pitch = 1;
+        utterance.rate = 1;
+      }
+
       utterance.lang = 'en-US';
 
       utterance.onstart = () => {
@@ -332,7 +376,7 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-end z-50 p-2 pointer-events-none">
+    <div className="fixed inset-0 flex items-end justify-end z-50 p-2 pointer-events-none pb-40">
       <div className="bg-white rounded-xl w-80 h-80 shadow-2xl relative flex flex-col overflow-hidden mr-4 pointer-events-auto">
 
         {/* Header */}
@@ -379,10 +423,10 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails })
                 onClick={isListening ? stopListening : startListening}
                 disabled={isProcessing}
                 className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-lg ${isListening
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
-                    : isProcessing
-                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
+                  ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
+                  : isProcessing
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 animate-pulse'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105'
                   }`}
                 aria-label={isListening ? 'Stop listening' : 'Start listening'}
               >

@@ -25,6 +25,15 @@ const AssistantWidget: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
 
+  // Generate a unique session ID for anonymous users
+  const [sessionId] = useState(() => {
+    const stored = sessionStorage.getItem('chatSessionId');
+    if (stored) return stored;
+    const newId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('chatSessionId', newId);
+    return newId;
+  });
+
   // Check localStorage AND verify with backend
   useEffect(() => {
     checkExistingUser();
@@ -137,15 +146,20 @@ const AssistantWidget: React.FC = () => {
     try {
       const phone = userDetails?.phone || '';
 
+      const requestBody = {
+        message: inputMessage,
+        phone: phone,
+        session_id: sessionId
+      };
+
+      console.log('🚀 Sending chat request:', requestBody);
+
       const response = await fetch('http://localhost:8000/web/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          message: inputMessage,
-          phone: phone
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
@@ -259,6 +273,7 @@ const AssistantWidget: React.FC = () => {
               <VoiceAssistant
                 onClose={() => setIsVoiceAssistantOpen(false)}
                 userDetails={userDetails}
+                sessionId={sessionId}
               />
             </div>
           </div>
@@ -286,8 +301,8 @@ const AssistantWidget: React.FC = () => {
                 <button
                   onClick={handleMicClick}
                   className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-all duration-300 transform hover:scale-105 ${isListening
-                      ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
+                    ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
                     }`}
                 >
                   {isListening ? (
@@ -328,8 +343,8 @@ const AssistantWidget: React.FC = () => {
                 >
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2 ${msg.isBot
-                        ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-gray-900'
-                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                      ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-gray-900'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                       }`}
                   >
                     {msg.text}
