@@ -56,6 +56,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
       const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
       const phone = userDetails.phone || '';
 
+      // Get or create session ID for anonymous tracking
+      let sessionId = sessionStorage.getItem('chatSessionId');
+      if (!sessionId) {
+        sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        sessionStorage.setItem('chatSessionId', sessionId);
+      }
+
       const response = await fetch('http://localhost:8000/web/api/chat', {
         method: 'POST',
         headers: {
@@ -63,7 +70,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
         },
         body: JSON.stringify({
           message: inputMessage,
-          phone: phone
+          phone: phone,
+          session_id: sessionId
         }),
       });
 
@@ -130,8 +138,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
             <div className={`flex items-start space-x-2 max-w-[80%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
               }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === 'user'
-                  ? 'bg-blue-600'
-                  : 'bg-gradient-to-r from-purple-500 to-blue-500'
+                ? 'bg-blue-600'
+                : 'bg-gradient-to-r from-purple-500 to-blue-500'
                 }`}>
                 {message.sender === 'user' ? (
                   <User className="w-4 h-4 text-white" />
@@ -140,8 +148,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
                 )}
               </div>
               <div className={`rounded-2xl p-3 ${message.sender === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-900'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-900'
                 }`}>
                 <p className="text-sm">{message.text}</p>
                 <p className={`text-xs mt-1 ${message.sender === 'user' ? 'text-blue-200' : 'text-gray-500'
