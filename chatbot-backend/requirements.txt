@@ -5,4 +5,7 @@ supabase
 openai
 python-dotenv
 pydantic
-
+python-multipart
+email-validator
+gunicorn
+scalar-fastapi
