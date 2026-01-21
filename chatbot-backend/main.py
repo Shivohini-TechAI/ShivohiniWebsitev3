@@ -11,6 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from dotenv import load_dotenv
 from typing import Optional, List, Dict, Any
+from scalar_fastapi import get_scalar_api_reference
 
 load_dotenv()
 
@@ -539,6 +540,13 @@ async def chat(request: ChatRequest):
 @app.get("/")
 async def root():
     return {"status": "Chatbot API is running! 🚀"}
+
+@app.get("/scalar", include_in_schema=False)
+async def scalar_html():
+    return get_scalar_api_reference(
+        content='{"openapi": "3.0.0", "info": {"title": "My API"}}',
+        title="My API"
+    )
 
 if __name__ == "__main__":
     import uvicorn

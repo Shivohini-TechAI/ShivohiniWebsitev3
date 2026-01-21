@@ -101,10 +101,9 @@ const Contact: React.FC = () => {
               type="submit"
               disabled={loading}
               className={`mt-4 flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-semibold text-white text-lg shadow-[0_0_25px_rgba(0,224,255,0.3)]
-                transition-all duration-300 ${
-                  loading
-                    ? "bg-gray-500 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 hover:scale-105 hover:shadow-[0_0_35px_rgba(0,224,255,0.5)]"
+                transition-all duration-300 ${loading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 hover:scale-105 hover:shadow-[0_0_35px_rgba(0,224,255,0.5)]"
                 }`}
             >
               {loading ? "Sending..." : "Send Message"}
