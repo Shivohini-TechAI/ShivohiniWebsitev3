@@ -19,7 +19,11 @@ const PORT = process.env.PORT || 5000;
 // Middlewares
 app.use(helmet());
 app.use(cors({
-  origin: ["http://localhost:5173", "https://your-frontend-domain.com"]
+  origin: [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL || "https://your-frontend-domain.com"
+  ],
+  credentials: true
 }));
 app.use(express.json());
 
