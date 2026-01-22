@@ -127,7 +127,7 @@ const BlogUpdates = () => {
           messages: [
             {
               role: 'user',
-            content: `Generate 6 unique news articles about AI, artificial intelligence, technology, innovation, or computer science. Each article should include:
+              content: `Generate 6 unique news articles about AI, artificial intelligence, technology, innovation, or computer science. Each article should include:
 - title: A catchy news headline
 - description: A brief news summary (2-3 sentences)
 - content: A detailed news article body with at least 6-8 paragraphs (600-800 words) covering facts, developments, and implications
@@ -403,9 +403,8 @@ Return the response as a valid JSON array of objects with these exact keys. Ensu
             <button
               key={index}
               onClick={() => setCurrentPage(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                currentPage === index ? "bg-blue-400 scale-125" : "bg-white/30"
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${currentPage === index ? "bg-blue-400 scale-125" : "bg-white/30"
+                }`}
             />
           ))}
         </div>

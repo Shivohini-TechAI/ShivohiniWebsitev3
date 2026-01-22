@@ -54,7 +54,7 @@ const Hero: React.FC = () => {
           {/* Text Content */}
           <div data-reveal className="reveal-hidden space-y-8 text-center lg:text-left">
             <div className="space-y-4">
-              <h1 className="text-5xl lg:text-6xl font-bold leading-tight text-white">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
                 Transforming Ideas into <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 animate-gradient">
                   Intelligent Solutions
@@ -67,9 +67,9 @@ const Hero: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button 
-              onClick={() => navigate("/solutions")}
-              className="group bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 
+              <button
+                onClick={() => navigate("/solutions")}
+                className="group bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 
                 text-white px-8 py-4 rounded-2xl font-semibold text-lg 
                 hover:from-cyan-600 hover:via-blue-700 hover:to-purple-700 
                 transform hover:scale-105 transition-all duration-300 shadow-xl">
@@ -93,7 +93,7 @@ const Hero: React.FC = () => {
           >
             {/* HOLOGRAPHIC VIDEO WITH ADVANCED GLOW EFFECTS */}
             {/* CLEAN BLENDED HOLOGRAM VIDEO */}
-            <div className="relative w-[1020px] h-[480px] flex items-center justify-center">
+            <div className="relative w-full max-w-4xl aspect-video flex items-center justify-center">
 
               <video
                 src={videoFile}

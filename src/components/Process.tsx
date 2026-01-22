@@ -60,7 +60,7 @@ const Process: React.FC = () => {
     <section
       id="process"
       ref={sectionRef}
-      className="relative py-24 bg-gradient-to-b from-[#3E4C9A] via-[#2C3B7A] to-[#1B2A5A] overflow-hidden"
+      className="relative py-16 md:py-24 bg-gradient-to-b from-[#3E4C9A] via-[#2C3B7A] to-[#1B2A5A] overflow-hidden"
     >
       <div className="absolute inset-0">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl animate-pulse"></div>
@@ -69,7 +69,7 @@ const Process: React.FC = () => {
 
       <div className="relative z-10 container mx-auto px-6">
         <div className="text-center mb-16 reveal-hidden">
-          <h2 className="text-5xl lg:text-6xl font-bold mb-8 text-white tracking-wide">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-white tracking-wide">
             How Our AI Solution{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">
               Process Works
@@ -89,9 +89,8 @@ const Process: React.FC = () => {
               return (
                 <div
                   key={step.number}
-                  className={`reveal-hidden grid lg:grid-cols-2 gap-8 items-center ${
-                    isEven ? "" : "lg:grid-flow-dense"
-                  }`}
+                  className={`reveal-hidden grid lg:grid-cols-2 gap-8 items-center ${isEven ? "" : "lg:grid-flow-dense"
+                    }`}
                 >
                   <div
                     className={`group relative ${isEven ? "" : "lg:col-start-2"}`}
@@ -107,9 +106,8 @@ const Process: React.FC = () => {
                   </div>
 
                   <div
-                    className={`group bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-cyan-400/30 transition-all duration-500 hover:shadow-[0_0_25px_rgba(0,224,255,0.4)] hover:-translate-y-2 ${
-                      isEven ? "" : "lg:col-start-1 lg:row-start-1"
-                    }`}
+                    className={`group bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-cyan-400/30 transition-all duration-500 hover:shadow-[0_0_25px_rgba(0,224,255,0.4)] hover:-translate-y-2 ${isEven ? "" : "lg:col-start-1 lg:row-start-1"
+                      }`}
                   >
                     <div className="flex items-center mb-4">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white text-xl font-bold mr-4 group-hover:scale-110 transition-transform duration-500">

@@ -1,5 +1,5 @@
 // src/components/Products.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -92,7 +92,7 @@ const Products: React.FC = () => {
 
   return (
     <section className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden">
-      
+
       {/* Background Image */}
       <div className="absolute top-0 right-0 w-full lg:w-1/2 h-64 lg:h-full opacity-10">
         <img
@@ -103,7 +103,7 @@ const Products: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6 tracking-wide">
@@ -213,9 +213,8 @@ const Products: React.FC = () => {
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  currentSlide === index ? "bg-blue-400 scale-125" : "bg-white/30"
-                }`}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === index ? "bg-blue-400 scale-125" : "bg-white/30"
+                  }`}
               />
             ))}
           </div>
