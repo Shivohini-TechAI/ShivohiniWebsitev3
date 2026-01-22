@@ -49,7 +49,7 @@ const AssistantWidget: React.FC = () => {
       const details = JSON.parse(savedDetails);
 
       try {
-        const { data } = await axios.get(`http://localhost:8000/api/check-user/${details.email}`);
+        const { data } = await axios.get(`https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/check-user/${details.email}`);
 
         if (data && data.exists) {
           setUserDetails(data.user);
@@ -153,7 +153,7 @@ const AssistantWidget: React.FC = () => {
 
       console.log('🚀 Sending chat request:', requestBody);
 
-      const response = await fetch('http://localhost:8000/web/api/chat', {
+      const response = await fetch('https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/web/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

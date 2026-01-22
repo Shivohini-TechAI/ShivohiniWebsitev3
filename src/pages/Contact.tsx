@@ -14,7 +14,7 @@ const Contact: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/contact", {
+      const response = await fetch("https://n8gs0gsgkg0swwcwsggowwkk.194.164.151.212.sslip.io/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
