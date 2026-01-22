@@ -78,7 +78,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     try {
       if (requirementOnly && existingUser) {
         // INSERT NEW ROW with all existing details + new requirement
-        await axios.post('http://localhost:8000/api/add-user-requirement', {
+        await axios.post('https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/add-user-requirement', {
           name: existingUser.name,
           email: existingUser.email,
           phone: existingUser.phone,
@@ -98,7 +98,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
         // Check if email already exists (for first-time users)
         try {
           const { data: existingData } = await axios.get(
-            `http://localhost:8000/api/check-user/${formData.email}`
+            `https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/check-user/${formData.email}`
           );
           
           if (existingData && existingData.exists) {
@@ -111,7 +111,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
         }
         
         // INSERT new user
-        await axios.post('http://localhost:8000/api/save-user', formData);
+        await axios.post('https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/save-user', formData);
         
         localStorage.setItem('userDetails', JSON.stringify(formData));
         localStorage.setItem('userDetailsSubmitted', 'true');

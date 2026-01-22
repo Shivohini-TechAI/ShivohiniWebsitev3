@@ -23,7 +23,7 @@ const Careers: React.FC = () => {
   const totalSlides = Math.ceil(jobs.length / itemsPerSlide);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/jobs")
+    fetch("https://n8gs0gsgkg0swwcwsggowwkk.194.164.151.212.sslip.io/api/jobs")
       .then((res) => res.json())
       .then((data) => {
         setJobs(data);
