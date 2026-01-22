@@ -28,7 +28,7 @@ const About: React.FC = () => {
   return (
     <section
       id="about"
-      className="relative py-24 bg-gradient-to-b from-[#1B2A5A] via-[#2C3B7A] to-[#3E4C9A] overflow-hidden"
+      className="relative py-16 md:py-24 bg-gradient-to-b from-[#1B2A5A] via-[#2C3B7A] to-[#3E4C9A] overflow-hidden"
     >
       {/* Background Glow */}
       <div className="absolute inset-0">
@@ -38,7 +38,7 @@ const About: React.FC = () => {
 
       <div className="relative z-10 container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-5xl lg:text-6xl font-bold mb-8 text-white tracking-wide">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-white tracking-wide">
             About <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">Shivohini TechAI</span>
           </h2>
         </div>

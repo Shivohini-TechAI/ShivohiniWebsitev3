@@ -1,5 +1,5 @@
 // src/components/Industries.tsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -195,7 +195,7 @@ const Industries: React.FC = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6 tracking-wide">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-wide">
             Industries We{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500">
               Serve
@@ -210,7 +210,7 @@ const Industries: React.FC = () => {
         <div className="relative">
           <button
             onClick={prevSlide}
-            className="absolute left-[-50px] lg:left-[-70px] 
+            className="absolute left-0 md:left-[-50px] lg:left-[-70px] 
              top-1/3 -translate-y-1/2 z-20 
              bg-white/10 text-white p-3 rounded-full 
              hover:bg-white/20 transition duration-300 hover:scale-110"
@@ -220,7 +220,7 @@ const Industries: React.FC = () => {
 
           <button
             onClick={nextSlide}
-            className="absolute right-[-50px] lg:right-[-70px]
+            className="absolute right-0 md:right-[-50px] lg:right-[-70px]
              top-1/3 -translate-y-1/2 z-20 
              bg-white/10 text-white p-3 rounded-full 
              hover:bg-white/20 transition duration-300 hover:scale-110"
@@ -231,7 +231,7 @@ const Industries: React.FC = () => {
           {/* FIXED HEIGHT GRID */}
           <div
             ref={carouselRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-12 min-h-[500px]"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-12 min-h-[400px] md:min-h-[500px]"
           >
             {getCurrentIndustries().map((industry) => (
               <div
@@ -281,11 +281,10 @@ const Industries: React.FC = () => {
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  currentSlide === index
-                    ? "bg-blue-400 scale-125"
-                    : "bg-white/30"
-                }`}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === index
+                  ? "bg-blue-400 scale-125"
+                  : "bg-white/30"
+                  }`}
               />
             ))}
           </div>
