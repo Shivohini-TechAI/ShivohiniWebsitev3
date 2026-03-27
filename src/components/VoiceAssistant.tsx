@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import robotGif from '../assets/Robot-Bot 3D.gif';
 import clearIcon from '../assets/reload.png';
+import { chatbotApiUrl } from '../config/api';
 
 interface VoiceAssistantProps {
   onClose: () => void;
@@ -127,7 +128,7 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails, s
       const navPath = detectNavigationIntent(query);
       const phone = userDetails?.phone || '';
 
-      const { data } = await axios.post('http://localhost:8000/api/chat', {
+      const { data } = await axios.post(chatbotApiUrl('/api/chat'), {
         query,
         phone,
         session_id: sessionId

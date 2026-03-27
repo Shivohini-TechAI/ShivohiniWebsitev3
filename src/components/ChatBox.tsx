@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, X, Bot, User } from 'lucide-react';
+import { chatbotApiUrl } from '../config/api';
 
 interface Message {
   id: number;
@@ -63,7 +64,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
         sessionStorage.setItem('chatSessionId', sessionId);
       }
 
-      const response = await fetch('http://localhost:8000/web/api/chat', {
+      const response = await fetch(chatbotApiUrl('/web/api/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

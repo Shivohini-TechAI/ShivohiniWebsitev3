@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Briefcase, MapPin, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useScrollReveal from "../hooks/useScrollReveal";
+import { websiteApiUrl } from "../config/api";
 
 interface Job {
   _id: string;
@@ -30,7 +31,7 @@ const Careers: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:5000/api/jobs")
+    fetch(websiteApiUrl("/api/jobs"))
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch jobs");
         return res.json();

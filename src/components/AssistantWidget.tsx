@@ -5,6 +5,7 @@ import axios from 'axios';
 import assistantImage from '../assets/industry/assistant.png';
 import VoiceAssistant from './VoiceAssistant';
 import UserDetailsForm, { UserDetails } from './UserDetailsForm';
+import { chatbotApiUrl } from '../config/api';
 
 const AssistantWidget: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,7 +45,7 @@ const AssistantWidget: React.FC = () => {
     if (savedDetails && hasSubmitted === 'true') {
       const details = JSON.parse(savedDetails);
       try {
-        const { data } = await axios.get(`http://localhost:8000/api/check-user/${details.email}`);
+        const { data } = await axios.get(chatbotApiUrl(`/api/check-user/${details.email}`));
         if (data && data.exists) {
           setUserDetails(data.user);
           localStorage.setItem('userDetails', JSON.stringify(data.user));
@@ -128,7 +129,7 @@ const AssistantWidget: React.FC = () => {
         session_id: sessionId
       };
 
-      const response = await fetch('http://localhost:8000/web/api/chat', {
+      const response = await fetch(chatbotApiUrl('/web/api/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),

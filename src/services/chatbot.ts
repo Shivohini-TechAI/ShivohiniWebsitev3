@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:8000/api';
+import { chatbotApiUrl } from '../config/api';
 
 export interface ChatResponse {
   answer: string;
@@ -9,7 +8,7 @@ export interface ChatResponse {
 }
 
 export const sendChatQuery = async (query: string): Promise<ChatResponse> => {
-  const response = await axios.post<ChatResponse>(`${API_URL}/chat`, {
+  const response = await axios.post<ChatResponse>(chatbotApiUrl('/api/chat'), {
     query
   });
   return response.data;

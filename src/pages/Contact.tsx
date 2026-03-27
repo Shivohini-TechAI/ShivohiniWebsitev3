@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import useScrollReveal from '../hooks/useScrollReveal';
+import { websiteApiUrl } from "../config/api";
 
 const Contact: React.FC = () => {
   useScrollReveal();
@@ -16,7 +17,7 @@ const Contact: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/contact", {
+      const response = await fetch(websiteApiUrl("/api/contact"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

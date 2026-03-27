@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Loader2, ArrowLeft, Briefcase } from "lucide-react";
 import useScrollReveal from '../hooks/useScrollReveal';
+import { websiteApiUrl } from "../config/api";
 
 const Apply: React.FC = () => {
   useScrollReveal();
@@ -20,7 +21,7 @@ const Apply: React.FC = () => {
   useEffect(() => {
     if (id) {
       setFetchingJob(true);
-      fetch(`http://localhost:5000/api/jobs/${id}`)
+      fetch(websiteApiUrl(`/api/jobs/${id}`))
         .then(res => res.json())
         .then(data => {
           if (data && data.title) {
@@ -43,7 +44,7 @@ const Apply: React.FC = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/apply", {
+      const response = await fetch(websiteApiUrl("/api/apply"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
