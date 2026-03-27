@@ -27,25 +27,25 @@ const IndustryPage: React.FC<IndustryPageProps> = ({
   const navigate = useNavigate();
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#020617] via-[#0A1A3F] to-[#1E2A78] text-white py-24 px-6 overflow-hidden relative">
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#020617] via-[#0A1A3F] to-[#1E2A78] px-4 py-20 text-white sm:px-6 sm:py-24">
 
       {/* FULL WIDTH TITLE + DESCRIPTION */}
-      <div className="container mx-auto max-w-5xl text-center mb-1">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+      <div className="container mx-auto mb-6 max-w-5xl text-center sm:mb-8">
+        <h1 className="mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-6xl">
           {industryTitle}
         </h1>
 
-        <p className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto">
+        <p className="mx-auto max-w-3xl text-base text-gray-300 sm:text-lg md:text-xl">
           {description}
         </p>
       </div>
 
       {/* GRID BELOW TITLE */}
-      <div className="container mx-auto max-w-7xl grid lg:grid-cols-2 gap-16 items-center">
+      <div className="container mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 lg:gap-16">
 
         {/* LEFT SIDE IMAGE */}
         {botImage && (
-          <div className="flex justify-center items-start mt-10">
+          <div className="mt-6 flex justify-center items-start sm:mt-10">
             <img
               src={botImage}
               alt={botAlt}
@@ -55,9 +55,9 @@ const IndustryPage: React.FC<IndustryPageProps> = ({
         )}
 
         {/* RIGHT SIDE CONTENT */}
-        <div>
-          {/* FEATURES */}
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <div>
+            {/* FEATURES */}
+          <div className="mb-10 grid gap-5 md:grid-cols-2 md:gap-6 sm:mb-12">
             {features.map((f, i) => (
               <div
                 key={i}
@@ -76,7 +76,7 @@ const IndustryPage: React.FC<IndustryPageProps> = ({
           <div>
             <button
               onClick={() => navigate("/contact")}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 rounded-2xl font-semibold shadow-lg hover:scale-105 transition"
+              className="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3.5 font-semibold shadow-lg transition hover:scale-[1.02] sm:w-auto"
             >
               {buttonText}
             </button>

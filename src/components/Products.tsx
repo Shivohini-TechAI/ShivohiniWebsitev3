@@ -1,219 +1,146 @@
 // src/components/Products.tsx
-import React, { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { products } from "../data/products";
+import { useNavigate } from "react-router-dom";
+import useScrollReveal from '../hooks/useScrollReveal';
 
-import aiAgentImage from "../assets/products/AI_agent-min (1).png";
-import aiSalesLeadImage from "../assets/products/AI_Sales_Lead_Generator-min (1).png";
-import aiVirtualImage from "../assets/products/AI_Virtual_Assistant-min (1).png";
-import contentCreatorImage from "../assets/products/Content_Creator_AI-min (1).png";
-import customizedDroneImage from "../assets/products/Customized_Drones-min (1).png";
-import faceRecoImage from "../assets/products/Face_Recognition-min (1).png";
-import interactiveWebsiteImage from "../assets/products/Interactive_Websites-min (1).png";
-
-interface Product {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  features?: string[];
-}
+const getItemsPerSlide = () => {
+  if (typeof window === "undefined") return 3;
+  if (window.innerWidth < 768) return 1;
+  if (window.innerWidth < 1280) return 2;
+  return 3;
+};
 
 const Products: React.FC = () => {
-  // const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [itemsPerSlide, setItemsPerSlide] = useState(getItemsPerSlide);
+  useScrollReveal([currentSlide]);
+  const navigate = useNavigate();
 
-  const products: Product[] = [
-    {
-      id: 1,
-      title: "AI Agent",
-      description: "An intelligent AI agent to automate business operations.",
-      image: aiAgentImage,
-      features: ["Automates tasks", "AI powered insights"],
-    },
-    {
-      id: 2,
-      title: "Face Recognition",
-      description: "Advanced facial recognition system for security and analytics.",
-      image: faceRecoImage,
-      features: ["Security solution", "Attendance tracking"],
-    },
-    {
-      id: 3,
-      title: "Customized Drones",
-      description: "Tailor-made drones for business and industrial applications.",
-      image: customizedDroneImage,
-      features: ["Aerial monitoring", "Customized design"],
-    },
-    {
-      id: 4,
-      title: "AI Virtual Assistant",
-      description: "Virtual assistant to manage tasks and customer queries.",
-      image: aiVirtualImage,
-      features: ["Task management", "Customer support"],
-    },
-    {
-      id: 5,
-      title: "Interactive Websites",
-      description: "Websites with interactive features and AI integration.",
-      image: interactiveWebsiteImage,
-      features: ["Personalized UX", "AI Chatbot Integration"],
-    },
-    {
-      id: 6,
-      title: "AI Sales Lead Generator",
-      description:
-        "Discovers, qualifies, and delivers high-conversion sales prospects.",
-      image: aiSalesLeadImage,
-      features: ["Targeted Prospecting", "CRM Integration"],
-    },
-    {
-      id: 7,
-      title: "Content Creator AI",
-      description: "Automatically creates marketing content for multiple formats.",
-      image: contentCreatorImage,
-      features: ["Multi-format Output", "SEO Optimization"],
-    },
-  ];
+  useEffect(() => {
+    const handleResize = () => setItemsPerSlide(getItemsPerSlide());
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  const itemsPerSlide = 3;
   const totalSlides = Math.ceil(products.length / itemsPerSlide);
 
-  const nextSlide = () =>
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  useEffect(() => {
+    setCurrentSlide((prev) => Math.min(prev, Math.max(totalSlides - 1, 0)));
+  }, [totalSlides]);
 
-  const prevSlide = () =>
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
 
-  const getCurrentProducts = () => {
-    const start = currentSlide * itemsPerSlide;
-    return products.slice(start, start + itemsPerSlide);
-  };
+  const currentProducts = products.slice(
+    currentSlide * itemsPerSlide,
+    currentSlide * itemsPerSlide + itemsPerSlide
+  );
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-900 to-blue-900 relative overflow-hidden">
-
-      {/* Background Image */}
-      <div className="absolute top-0 right-0 w-full lg:w-1/2 h-64 lg:h-full opacity-10">
-        <img
-          src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1536&h=768&fit=crop"
-          alt="Futuristic AI interface"
-          className="w-full h-full object-cover rounded-bl-3xl"
-        />
+    <section className="relative overflow-hidden bg-[#050f20] py-20 sm:py-24 lg:py-32">
+      {/* Background aurora glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-[#00C8FF]/5 rounded-full blur-[140px] animate-pulse" />
+        <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#7B61FF]/3 rounded-full blur-[120px] animate-pulse delay-700" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-16">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6 tracking-wide">
-            Our{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500">
-              Products
-            </span>
+        <div data-reveal className="reveal-hidden mb-14 max-w-2xl sm:mb-20 lg:mb-24">
+          <h2 className="mb-6 text-3xl font-display font-bold leading-tight text-white sm:mb-8 sm:text-4xl lg:text-[3.5rem]">
+            Our Intelligent <span className="text-brand-gradient">Solutions</span>
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Transforming businesses with tailored AI solutions across various domains.
+          <p className="text-base leading-relaxed text-white/50 font-sans sm:text-lg md:text-xl">
+            Engineered cognitive products designed to automate complexity and redefine operational excellence.
           </p>
         </div>
 
         <div className="relative">
+          <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
+            <div className="text-xs font-bold uppercase tracking-[0.24em] text-white/35 sm:text-sm">
+              {String(currentSlide + 1).padStart(2, "0")} / {String(totalSlides).padStart(2, "0")}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={prevSlide}
+                aria-label="Previous products"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white shadow-2xl transition-all duration-500 hover:scale-110 hover:border-[#00C8FF] hover:bg-[#00C8FF] hover:text-[#050f20] focus:outline-none sm:h-12 sm:w-12 md:absolute md:left-0 md:top-1/2 md:-translate-x-4 md:-translate-y-1/2 lg:-translate-x-14"
+              >
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
 
-          {/* Left Arrow */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-[-50px] lg:left-[-70px]
-              top-1/3 -translate-y-1/2 z-20
-              bg-white/10 text-white p-3 rounded-full
-              hover:bg-white/20 transition duration-300 hover:scale-110"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
+              <button
+                onClick={nextSlide}
+                aria-label="Next products"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white shadow-2xl transition-all duration-500 hover:scale-110 hover:border-[#00C8FF] hover:bg-[#00C8FF] hover:text-[#050f20] focus:outline-none sm:h-12 sm:w-12 md:absolute md:right-0 md:top-1/2 md:translate-x-4 md:-translate-y-1/2 lg:translate-x-14"
+              >
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+            </div>
+          </div>
 
-          {/* Right Arrow */}
-          <button
-            onClick={nextSlide}
-            className="absolute right-[-50px] lg:right-[-70px]
-              top-1/3 -translate-y-1/2 z-20
-              bg-white/10 text-white p-3 rounded-full
-              hover:bg-white/20 transition duration-300 hover:scale-110"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-
-          {/* FIXED HEIGHT GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-12 min-h-[500px]">
-            {getCurrentProducts().map((product) => (
-              // <div
-              //   key={product.id}
-              //   onClick={() => navigate(`/products/${product.id}`)}
-              //   className="
-              //     group relative bg-white/10 backdrop-blur-md 
-              //     rounded-3xl p-6 
-              //     h-[380px]
-              //     hover:bg-white/20 transition-all duration-500 
-              //     transform hover:-translate-y-4 hover:scale-105 
-              //     cursor-pointer 
-              //     flex flex-col justify-between
-              //   "
-              // >
-
+          {/* Cards Grid */}
+          <div className={`grid items-stretch gap-5 sm:gap-6 lg:gap-8 ${itemsPerSlide === 1 ? "grid-cols-1" : itemsPerSlide === 2 ? "md:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"}`}>
+            {currentProducts.map((product, i) => (
               <div
                 key={product.id}
-                className="
-                  group relative bg-white/10 backdrop-blur-md 
-                  rounded-3xl p-6 
-                  h-[410px]
-                  hover:bg-white/20 transition-all duration-500 
-                  transform hover:-translate-y-4 hover:scale-105 
-                  cursor-pointer 
-                  flex flex-col justify-between
-                  "
+                data-reveal
+                className="reveal-hidden group flex flex-col rounded-[2rem] border border-white/[0.05] bg-white/[0.02] p-6 backdrop-blur-xl
+                  hover:border-[#00C8FF]/30 transition-all duration-500
+                  hover:-translate-y-3 shadow-2xl cursor-default sm:p-8 lg:rounded-[2.5rem] lg:p-10"
+                style={{ transitionDelay: `${i * 100}ms` }}
               >
-                {/* IMAGE */}
-                <div className="mb-6 flex justify-center">
+                {/* Image */}
+                <div className="relative mb-8 flex h-[180px] shrink-0 items-center justify-center sm:mb-10 sm:h-[200px]">
+                  <div className="absolute inset-0 bg-[#00C8FF]/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="w-45 h-45 object-contain"
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain filter drop-shadow-[0_0_20px_rgba(0,200,255,0.2)] group-hover:scale-110 transition-transform duration-700 relative z-10"
                   />
                 </div>
 
-                {/* TITLE */}
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors duration-300">
+                <h3 className="mb-4 text-xl font-display font-bold tracking-tight text-white group-hover:text-brand-gradient sm:text-2xl">
                   {product.title}
                 </h3>
 
-                {/* DESCRIPTION */}
-                <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                <p className="text-white/40 text-[0.95rem] leading-relaxed mb-8 flex-grow font-sans">
                   {product.description}
                 </p>
 
-                {/* FEATURES */}
-                {product.features && (
-                  <div className="space-y-1 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    {product.features.map((feature, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center text-xs text-blue-300"
-                      >
-                        <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2" />
-                        {feature}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="space-y-4 mt-auto pt-8 border-t border-white/5">
+                  {product.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-[0.85rem] text-white/60 font-medium font-sans">
+                      <div className="w-2 h-2 rounded-full bg-[#00C8FF]/40 border border-[#00C8FF]/20" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => navigate(`/products/${product.id}`)}
+                  className="group/btn mt-8 flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] py-4 text-sm font-bold text-white shadow-xl transition-all hover:border-[#00C8FF] hover:bg-[#00C8FF] hover:text-[#050f20] sm:mt-10"
+                >
+                  Architect Detail <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                </button>
               </div>
             ))}
           </div>
 
-          {/* Pagination Dots */}
-          <div className="flex justify-center mt-8 space-x-2">
+          {/* Pagination */}
+          <div className="mt-10 flex justify-center gap-3 sm:mt-12">
             {Array.from({ length: totalSlides }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === index ? "bg-blue-400 scale-125" : "bg-white/30"
+                aria-label={`Go to slide ${index + 1}`}
+                className={`rounded-full transition-all duration-500 focus:outline-none ${currentSlide === index
+                    ? "bg-[#00C8FF] w-10 h-2 shadow-[0_0_10px_rgba(0,200,255,0.6)]"
+                    : "bg-white/20 w-2 h-2 hover:bg-white/40"
                   }`}
               />
             ))}

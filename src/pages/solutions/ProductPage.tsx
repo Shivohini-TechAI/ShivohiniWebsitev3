@@ -1,7 +1,8 @@
-// src/pages/ProductPage.tsx
+// src/pages/solutions/ProductPage.tsx
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle2, ArrowLeft } from "lucide-react";
+import useScrollReveal from '../../hooks/useScrollReveal';
 
 interface Product {
   id: number;
@@ -56,6 +57,7 @@ const products: Product[] = [
 ];
 
 const ProductPage: React.FC = () => {
+  useScrollReveal();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -63,33 +65,56 @@ const ProductPage: React.FC = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gray-900">
-        <h1 className="text-3xl font-bold">Product not found</h1>
+      <div className="min-h-screen flex items-center justify-center text-white bg-[#050f20]">
+        <h1 className="text-3xl font-display font-bold">Product not found</h1>
       </div>
     );
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white py-24 px-6">
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-5xl font-bold mb-6">{product.title}</h1>
-        <p className="text-gray-300 text-lg mb-12">{product.description}</p>
+    <section className="relative min-h-screen overflow-hidden bg-[#050f20] px-4 py-24 text-white sm:px-6 sm:py-32">
+      {/* Background aurora glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#00C8FF]/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#7B61FF]/5 rounded-full blur-[120px]" />
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+      <div data-reveal className="reveal-hidden relative z-10 mx-auto max-w-4xl">
+        <button 
+          onClick={() => navigate(-1)}
+          className="group mb-10 flex items-center gap-2 text-white/40 transition-colors hover:text-[#00C8FF] sm:mb-12"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-bold tracking-widest uppercase">Back to Solutions</span>
+        </button>
+
+        <div className="mb-12 text-center sm:mb-16">
+          <h1 className="mb-6 text-3xl font-display font-bold tracking-[-0.02em] sm:text-4xl md:mb-8 md:text-6xl">
+            {product.title}
+          </h1>
+          <p className="mx-auto max-w-2xl text-base leading-[1.75] text-white/60 font-sans sm:text-lg md:text-xl">
+            {product.description}
+          </p>
+        </div>
+
+        <div className="mb-12 grid gap-5 sm:mb-16 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {product.features.map((feature, idx) => (
-            <div key={idx} className="flex items-start gap-3 bg-white/10 p-4 rounded-xl backdrop-blur-md">
-              <CheckCircle className="w-6 h-6 text-cyan-400 mt-1" />
-              <p className="text-gray-200">{feature}</p>
+            <div key={idx} className="flex flex-col gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-[12px] transition-all duration-300 hover:border-[#00C8FF]/30 sm:p-8">
+              <CheckCircle2 className="w-8 h-8 text-[#00C8FF] mb-2" />
+              <p className="text-white font-display font-semibold text-lg">{feature}</p>
             </div>
           ))}
         </div>
 
-        <button
-          onClick={() => navigate("/Products")}
-          className="bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 rounded-2xl font-semibold shadow-lg hover:scale-105 transition"
-        >
-          Back to Products
-        </button>
+        <div className="flex justify-center">
+          <button
+            onClick={() => navigate("/contact")}
+            className="rounded-xl bg-[#00C8FF] px-8 py-4 text-base font-bold text-[#050f20] 
+              shadow-[0_0_20px_rgba(0,200,255,0.2)] hover:shadow-[0_0_30px_rgba(0,200,255,0.4)] hover:bg-[#00b0e6] transform hover:-translate-y-1 transition-all duration-300"
+          >
+            Get Started
+          </button>
+        </div>
       </div>
     </section>
   );

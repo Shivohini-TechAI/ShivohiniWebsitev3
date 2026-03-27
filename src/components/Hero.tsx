@@ -1,126 +1,77 @@
-import React, { useEffect, useState } from 'react';
-import { Brain, Zap, Cpu, ArrowRight } from 'lucide-react';
+import React from 'react';
+import { ArrowRight } from 'lucide-react';
 import useScrollReveal from '../hooks/useScrollReveal';
 import videoFile from "../assets/Logo_Animate_V1.mp4";
 import { useNavigate } from "react-router-dom";
 
 const Hero: React.FC = () => {
   useScrollReveal();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center overflow-hidden 
-      bg-gradient-to-br from-[#0a0f1c] via-[#0d2338] to-[#1c3c63]"
+      className="relative flex min-h-[100svh] items-center overflow-hidden bg-dark-900 bg-aurora pb-14 pt-28 sm:pb-16 sm:pt-32"
     >
-
-      {/* Gold glow matching video */}
-      <div className="absolute right-0 top-0 w-[60%] h-full 
-        bg-gradient-to-l from-yellow-400/20 to-transparent opacity-70"></div>
-
-      {/* Soft blue neon overlay */}
-      <div className="absolute right-0 top-0 w-[50%] h-full 
-        bg-gradient-to-l from-cyan-400/10 to-transparent"></div>
-
-      {/* Floating Icons */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 animate-float">
-          <Brain className="w-8 h-8 text-cyan-400/60" />
-        </div>
-        <div className="absolute top-1/3 right-1/4 animate-float-delayed">
-          <Zap className="w-6 h-6 text-blue-400/60" />
-        </div>
-        <div className="absolute bottom-1/3 left-1/3 animate-float-slow">
-          <Cpu className="w-10 h-10 text-purple-400/60" />
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
 
           {/* Text Content */}
-          <div data-reveal className="reveal-hidden space-y-8 text-center lg:text-left">
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
-                Transforming Ideas into <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 animate-gradient">
+          <div data-reveal className="reveal-hidden space-y-6 text-center lg:text-left">
+            {/* Pill Badge */}
+
+
+            <div className="space-y-6">
+              <h1 className="text-3xl font-bold leading-[1.08] tracking-[-0.02em] text-white sm:text-5xl lg:text-[4.2rem]">
+                Transforming Ideas into <br className="hidden md:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00C8FF] to-[#7B61FF]">
                   Intelligent Solutions
                 </span>
               </h1>
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0">
-                Shivohoni TechAI revolutionizes businesses with cutting-edge AI technology,
+              <p className="mx-auto max-w-2xl text-base leading-[1.75] text-white/65 font-sans sm:text-lg lg:mx-0">
+                Shivohini TechAI revolutionizes businesses with cutting-edge AI technology,
                 custom solutions, and innovative automation across all industries.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex flex-col justify-center gap-4 pt-2 sm:flex-row lg:justify-start">
               <button
                 onClick={() => navigate("/solutions")}
-                className="group bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 
-                text-white px-8 py-4 rounded-2xl font-semibold text-lg 
-                hover:from-cyan-600 hover:via-blue-700 hover:to-purple-700 
-                transform hover:scale-105 transition-all duration-300 shadow-xl">
+                className="group flex w-full items-center justify-center rounded-xl bg-[#00C8FF] px-6 py-4 text-base font-semibold text-[#050f20] shadow-[0_0_20px_rgba(0,200,255,0.3)] transition-all duration-300 hover:bg-[#00b0e6] hover:shadow-[0_0_35px_rgba(0,200,255,0.5)] sm:w-auto sm:px-8 sm:text-lg">
                 Explore Our Solutions
-                <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="inline-block md:ml-2 ml-3 w-5 h-5 transform group-hover:translate-x-1.5 transition-transform duration-300" />
               </button>
-
-              {/* <button className="border-2 border-cyan-400 text-cyan-400 
-                px-8 py-4 rounded-2xl font-semibold text-lg 
-                hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-600 hover:text-white 
-                transition-all duration-300 shadow-lg">
-                Watch Demo
-              </button> */}
             </div>
           </div>
 
           {/* Right Side Video Section */}
           <div
             data-reveal
-            className="reveal-hidden relative flex items-center justify-center"
+            className="reveal-hidden relative flex items-center justify-center pt-2 sm:pt-6 lg:pt-0"
           >
-            {/* HOLOGRAPHIC VIDEO WITH ADVANCED GLOW EFFECTS */}
             {/* CLEAN BLENDED HOLOGRAM VIDEO */}
-            <div className="relative w-full max-w-4xl aspect-video flex items-center justify-center">
-
+            <div className="relative flex aspect-square w-full max-w-md items-center justify-center sm:max-w-xl md:aspect-video lg:max-w-2xl lg:aspect-square">
               <video
                 src={videoFile}
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover opacity-[0.82]"
+                className="h-full w-full scale-105 object-cover opacity-90 sm:scale-110 lg:scale-125"
                 style={{
                   mixBlendMode: "screen",
-                  maskImage:
-                    "radial-gradient(circle at center, black 60%, transparent 100%)",
-                  WebkitMaskImage:
-                    "radial-gradient(circle at center, black 60%, transparent 100%)",
+                  maskImage: "radial-gradient(circle at center, black 40%, transparent 70%)",
+                  WebkitMaskImage: "radial-gradient(circle at center, black 40%, transparent 70%)",
                 }}
               />
-
-              {/* Subtle gradient behind video for smoother blending */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-cyan-300/5 to-transparent blur-[0px] -z-10"></div>
-
             </div>
-
           </div>
-
 
         </div>
       </div>
+
+      {/* Background overlapping gradient fade to next section */}
+      <div className="pointer-events-none absolute bottom-0 left-0 h-24 w-full bg-gradient-to-b from-transparent to-[#050f20] sm:h-32" />
     </section>
   );
 };

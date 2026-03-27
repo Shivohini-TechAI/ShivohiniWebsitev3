@@ -14,57 +14,48 @@ const Header: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen]);
+
   const navItems = [
     { name: "Home", path: "/" },
     { name: "About Us", path: "/about-us" },
     { name: "Solutions", path: "/solutions" },
     { name: "Industries", path: "/industries" },
     { name: "Careers", path: "/careers" },
-    { name: "Contact", path: "/contact" },
-    { name: "Blog", path: "/#blog" },
+    { name: "Contact", path: "/contact" }
   ];
-
-  const handleNavClick = (path: string) => {
-    if (path === "/#blog") {
-      // Scroll to blog section on home page
-      const blogElement = document.getElementById('blog');
-      if (blogElement) {
-        blogElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-        isScrolled
-          ? "bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)]"
-          : "bg-transparent"
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 bg-[#050a19]/75 backdrop-blur-[16px] border-b border-white/[0.06] ${
+        isScrolled ? "py-2" : "py-3 sm:py-4"
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between px-6 py-4 transition-all duration-500">
+      <div className="container mx-auto flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 transition-all duration-500">
         {/* 🔹 Logo Section */}
         <Link
           to="/"
-          className="flex items-center gap-3 group transition-transform duration-300 hover:scale-105"
+          onClick={() => setIsMenuOpen(false)}
+          className="group flex min-w-0 items-center gap-3 transition-transform duration-300 hover:scale-105"
         >
           <div className="relative">
             <img
               src={logo}
               alt="Shivohini TechAI Logo"
-              className={`w-11 h-11 md:w-12 md:h-12 transition-all duration-500 ${
-                isScrolled
-                  ? "drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]"
-                  : "drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]"
-              } group-hover:drop-shadow-[0_0_18px_rgba(147,51,234,0.6)]`}
+              className="h-10 w-10 shrink-0 transition-all duration-500 drop-shadow-[0_0_12px_rgba(0,200,255,0.4)] group-hover:drop-shadow-[0_0_18px_rgba(123,97,255,0.6)] sm:h-11 sm:w-11 md:h-12 md:w-12"
             />
           </div>
           <span
-            className={`text-2xl font-bold tracking-tight transition-all duration-500 ${
-              isScrolled
-                ? "text-slate-900"
-                : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"
-            }`}
+            className="truncate text-base font-display font-bold tracking-tight text-white transition-all duration-500 sm:text-xl lg:text-2xl"
           >
             Shivohini TechAI
           </span>
@@ -72,75 +63,55 @@ const Header: React.FC = () => {
 
         {/* 🔸 Desktop Navbar */}
         <nav className="hidden md:flex items-center gap-10">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => handleNavClick(item.path)}
-              className={`relative text-lg font-medium transition-all duration-300 ${
-                location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")
-                  ? isScrolled
-                    ? "text-blue-600"
-                    : "text-white"
-                  : isScrolled
-                  ? "text-gray-700 hover:text-blue-600"
-                  : "text-gray-300 hover:text-white"
-              }`}
-            >
-              {item.name}
-              {(location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")) && (
-                <span
-                  className={`absolute left-1/2 -bottom-2 w-3/5 h-[3px] rounded-full transform -translate-x-1/2 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse ${
-                    isScrolled
-                      ? "bg-gradient-to-r from-blue-500 to-purple-500"
-                      : "bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500"
-                  }`}
-                />
-              )}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`relative text-sm uppercase tracking-[0.03em] font-medium transition-all duration-300 ${
+                  isActive ? "text-[#00C8FF]" : "text-white/70 hover:text-white"
+                } after:content-[''] after:absolute after:-bottom-[4px] after:left-1/2 after:-translate-x-1/2 after:h-[2px] after:bg-gradient-to-r after:from-[#00C8FF] after:to-[#7B61FF] after:transition-all after:duration-300 ${
+                  isActive ? "after:w-full" : "after:w-0 hover:after:w-full"
+                }`}
+              >
+                {item.name}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* 🔸 Mobile Menu Button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className={`md:hidden focus:outline-none transition-colors duration-500 ${
-            isScrolled ? "text-slate-900" : "text-white"
-          }`}
+          className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5 text-white transition-colors duration-500 focus:outline-none md:hidden"
+          aria-label="Toggle Navigation Menu"
         >
-          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {/* 🔸 Mobile Menu Panel */}
       {isMenuOpen && (
-        <div
-          className={`md:hidden absolute top-full left-0 w-full backdrop-blur-lg shadow-lg animate-fadeIn transition-all duration-500 ${
-            isScrolled ? "bg-white/95" : "bg-slate-900/90"
-          }`}
-        >
-          <nav className="flex flex-col items-center py-6 space-y-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`text-lg font-medium transition-all duration-300 ${
-                  location.pathname === item.path || (item.path === "/#blog" && location.pathname === "/" && location.hash === "#blog")
-                    ? isScrolled
-                      ? "text-blue-600"
-                      : "text-cyan-400"
-                    : isScrolled
-                    ? "text-gray-700 hover:text-blue-600"
-                    : "text-gray-300 hover:text-white"
-                }`}
-                onClick={() => {
-                  handleNavClick(item.path);
-                  setIsMenuOpen(false);
-                }}
-              >
-                {item.name}
-              </Link>
-            ))}
+        <div className="md:hidden absolute top-full left-0 w-full bg-[#050a19]/95 backdrop-blur-[16px] border-b border-white/[0.06] shadow-xl animate-fadeIn transition-all duration-500">
+          <nav className="flex max-h-[calc(100svh-5rem)] flex-col gap-3 overflow-y-auto px-4 py-4">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`rounded-2xl border px-4 py-3 text-base tracking-[0.03em] font-medium transition-all duration-300 ${
+                    isActive
+                      ? "border-[#00C8FF]/40 bg-[#00C8FF]/10 text-[#00C8FF]"
+                      : "border-white/5 text-white/70 hover:border-white/10 hover:text-white"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       )}
