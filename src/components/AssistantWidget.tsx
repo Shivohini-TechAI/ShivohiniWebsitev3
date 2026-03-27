@@ -105,7 +105,7 @@ const AssistantWidget: React.FC = () => {
 
   const handleWhatsAppClick = () => {
     if (userDetails) {
-      const phoneNumber = '919876543210';
+      const phoneNumber = '916377787157';
       const message = `Hello! I'm ${userDetails.name} from ${userDetails.company || 'my company'}. ${userDetails.requirement ? `Requirement: ${userDetails.requirement}` : 'I need assistance.'}`;
       window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
       setIsMenuOpen(false);
