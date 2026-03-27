@@ -73,7 +73,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
 
     try {
       if (requirementOnly && existingUser) {
-        await axios.post('https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/add-user-requirement', {
+        await axios.post('http://localhost:8000/api/add-user-requirement', {
           name: existingUser.name,
           email: existingUser.email,
           phone: existingUser.phone,
@@ -90,7 +90,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
       } else {
         try {
           const { data: existingData } = await axios.get(
-            `https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/check-user/${formData.email}`
+            `http://localhost:8000/api/check-user/${formData.email}`
           );
           if (existingData && existingData.exists) {
             alert('This email is already registered. Please proceed or use another email.');
@@ -99,7 +99,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           console.log('Email check skipped');
         }
         
-        await axios.post('https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/save-user', formData);
+        await axios.post('http://localhost:8000/api/save-user', formData);
         localStorage.setItem('userDetails', JSON.stringify(formData));
         localStorage.setItem('userDetailsSubmitted', 'true');
         onSubmit(formData);

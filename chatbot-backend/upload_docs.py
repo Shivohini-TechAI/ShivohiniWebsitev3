@@ -23,12 +23,10 @@ def extract_text_from_pdf(pdf_path: str) -> str:
         for page_num in range(len(pdf_reader.pages)):
             page = pdf_reader.pages[page_num]
             text += page.extract_text()
-    
     return text
 
 def upload_chunk(content: str, chunk_index: int):
     """Convert text to vector and upload to Supabase"""
-    
     print(f"Processing chunk {chunk_index}...")
     
     # Convert text to vector

@@ -20,7 +20,7 @@ const Apply: React.FC = () => {
   useEffect(() => {
     if (id) {
       setFetchingJob(true);
-      fetch(`https://n8gs0gsgkg0swwcwsggowwkk.194.164.151.212.sslip.io/api/jobs/${id}`)
+      fetch(`http://localhost:5000/api/jobs/${id}`)
         .then(res => res.json())
         .then(data => {
           if (data && data.title) {
@@ -43,7 +43,7 @@ const Apply: React.FC = () => {
     }
 
     try {
-      const response = await fetch("https://n8gs0gsgkg0swwcwsggowwkk.194.164.151.212.sslip.io/api/apply", {
+      const response = await fetch("http://localhost:5000/api/apply", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

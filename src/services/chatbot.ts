@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api';
+const API_URL = 'http://localhost:8000/api';
 
 export interface ChatResponse {
   answer: string;

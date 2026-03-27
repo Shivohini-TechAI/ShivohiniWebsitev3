@@ -63,7 +63,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onClose }) => {
         sessionStorage.setItem('chatSessionId', sessionId);
       }
 
-      const response = await fetch('https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/web/api/chat', {
+      const response = await fetch('http://localhost:8000/web/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
