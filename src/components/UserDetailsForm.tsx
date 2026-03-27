@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Phone, Building, MessageSquare, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { chatbotApiUrl } from '../config/api';
 
 interface UserDetailsFormProps {
   onSubmit: (userDetails: UserDetails) => void;
@@ -73,7 +74,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
 
     try {
       if (requirementOnly && existingUser) {
-        await axios.post('http://localhost:8000/api/add-user-requirement', {
+        await axios.post(chatbotApiUrl('/api/add-user-requirement'), {
           name: existingUser.name,
           email: existingUser.email,
           phone: existingUser.phone,
@@ -90,7 +91,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
       } else {
         try {
           const { data: existingData } = await axios.get(
-            `http://localhost:8000/api/check-user/${formData.email}`
+            chatbotApiUrl(`/api/check-user/${formData.email}`)
           );
           if (existingData && existingData.exists) {
             alert('This email is already registered. Please proceed or use another email.');
@@ -99,7 +100,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
           console.log('Email check skipped');
         }
         
-        await axios.post('http://localhost:8000/api/save-user', formData);
+        await axios.post(chatbotApiUrl('/api/save-user'), formData);
         localStorage.setItem('userDetails', JSON.stringify(formData));
         localStorage.setItem('userDetailsSubmitted', 'true');
         onSubmit(formData);
