@@ -1,7 +1,16 @@
 import React from "react";
-import { Lightbulb, Cpu, Users, Rocket } from "lucide-react";
+import { Lightbulb, Cpu, Users, Rocket, Target, Briefcase, Calendar } from "lucide-react";
+import useScrollReveal from '../hooks/useScrollReveal';
 
 const About: React.FC = () => {
+  useScrollReveal();
+
+  const stats = [
+    { label: "Projects Delivered", value: "50+", icon: Target },
+    { label: "Global Industries", value: "10+", icon: Briefcase },
+    { label: "Years of Innovation", value: "3+", icon: Calendar }
+  ];
+
   const features = [
     {
       icon: Lightbulb,
@@ -28,50 +37,81 @@ const About: React.FC = () => {
   return (
     <section
       id="about"
-      className="relative py-16 md:py-24 bg-gradient-to-b from-[#1B2A5A] via-[#2C3B7A] to-[#3E4C9A] overflow-hidden"
+      className="relative overflow-hidden bg-[#050f20] py-20 sm:py-24 lg:py-32"
     >
-      {/* Background Glow */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/3 w-72 h-72 bg-cyan-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#00C8FF]/5 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#7B61FF]/5 rounded-full blur-[120px] animate-pulse delay-700" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-white tracking-wide">
-            About <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">Shivohini TechAI</span>
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-16">
+        <div data-reveal className="reveal-hidden mb-14 max-w-2xl sm:mb-20 lg:mb-24">
+          <h2 className="mb-6 text-3xl font-display font-bold leading-tight text-white sm:mb-8 sm:text-4xl lg:text-[3.5rem]">
+            Pioneering the <span className="text-brand-gradient">Future</span> of AI Intelligence
           </h2>
+          <p className="text-base leading-relaxed text-white/60 font-sans sm:text-lg md:text-xl">
+            At Shivohini TechAI, we synchronize creativity, complex data, and deep learning architectures to transform the industrial landscape.
+          </p>
         </div>
 
         {/* Two Column Layout: Image + Text */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-          <div className="order-2 lg:order-1">
-            <img
-              src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1536&h=768&fit=crop"
-              alt="AI team collaborating in a modern office"
-              className="w-full h-auto rounded-3xl shadow-2xl object-cover"
-            />
+        <div className="mb-20 grid items-center gap-10 sm:gap-12 lg:mb-32 lg:grid-cols-2 lg:gap-20">
+          {/* Image Component with Glassmorphism Border */}
+          <div data-reveal className="reveal-hidden relative group">
+            <div className="absolute -inset-4 bg-gradient-to-tr from-[#00C8FF]/20 to-[#7B61FF]/20 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="relative p-2 bg-white/[0.05] backdrop-blur-md rounded-[2.5rem] border border-white/10 shadow-2xl">
+                <img
+                    src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1536&h=768&fit=crop"
+                    alt="Shivohini TechAI Innovation"
+                    loading="lazy"
+                    className="h-72 w-full rounded-[2rem] object-cover filter brightness-90 contrast-110 sm:h-96 lg:h-[500px]"
+                />
+            </div>
           </div>
-          <div className="order-1 lg:order-2">
-            <p className="text-gray-300 text-lg leading-relaxed">
-              At Shivohini TechAI, we combine creativity, data, and deep learning to build AI solutions that transform businesses.
-              From intelligent chatbots to scalable computer vision systems, our team focuses on innovation, automation, and growth.
-            </p>
+
+          <div data-reveal className="reveal-hidden space-y-8 sm:space-y-12">
+            <div className="space-y-6">
+                <h3 className="text-2xl font-display font-bold text-white tracking-tight">Redefining Digital Transformation</h3>
+                <p className="text-base leading-relaxed text-white/50 font-sans sm:text-lg">
+                    We don't just build software; we engineer cognitive assets. Our approach leverages proprietary neural patterns to deliver solutions that are not only intelligent but inherently adaptive to your unique business DNA.
+                </p>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 gap-6 border-t border-white/5 pt-8 sm:grid-cols-3 sm:gap-8 sm:pt-10">
+              {stats.map((stat, idx) => {
+                const StatIcon = stat.icon;
+                return (
+                  <div key={idx} className="flex flex-col gap-2 group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-[#00C8FF]/10 flex items-center justify-center border border-[#00C8FF]/20 group-hover:border-[#00C8FF]/50 transition-all">
+                        <StatIcon className="w-5 h-5 text-[#00C8FF]" />
+                      </div>
+                      <span className="text-3xl font-display font-bold text-white tracking-tighter">{stat.value}</span>
+                    </div>
+                    <span className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white/30">{stat.label}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Features / Vision, Mission, Values, Growth */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Core Pillars */}
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {features.map(({ icon: Icon, title, desc }, i) => (
             <div
               key={i}
-              className="group bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-cyan-400/30 transition-all duration-500 hover:shadow-[0_0_25px_rgba(0,224,255,0.4)] hover:-translate-y-2"
+              data-reveal
+              className="reveal-hidden group rounded-3xl border border-white/[0.05] bg-white/[0.02] p-6 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-[#00C8FF]/30 sm:p-8 lg:p-10"
+              style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 mb-6 group-hover:scale-110 transition-transform duration-500">
-                <Icon className="w-8 h-8 text-white" />
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/5 bg-gradient-to-br from-[#00C8FF]/10 to-[#7B61FF]/10 transition-all group-hover:border-[#00C8FF]/30 group-hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] sm:mb-8">
+                <Icon className="w-6 h-6 text-[#00C8FF]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">{title}</h3>
-              <p className="text-gray-300">{desc}</p>
+              <h4 className="text-xl font-display font-bold text-white mb-4 tracking-tight">{title}</h4>
+              <p className="text-white/40 text-[0.95rem] leading-relaxed font-sans">{desc}</p>
             </div>
           ))}
         </div>
