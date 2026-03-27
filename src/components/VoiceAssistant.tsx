@@ -127,7 +127,7 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onClose, userDetails, s
       const navPath = detectNavigationIntent(query);
       const phone = userDetails?.phone || '';
 
-      const { data } = await axios.post('https://bgkkgwg48w08cg0owwowsc40.194.164.151.212.sslip.io/api/chat', {
+      const { data } = await axios.post('http://localhost:8000/api/chat', {
         query,
         phone,
         session_id: sessionId

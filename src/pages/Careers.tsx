@@ -30,7 +30,7 @@ const Careers: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("https://n8gs0gsgkg0swwcwsggowwkk.194.164.151.212.sslip.io/api/jobs")
+    fetch("http://localhost:5000/api/jobs")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch jobs");
         return res.json();
